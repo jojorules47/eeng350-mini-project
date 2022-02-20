@@ -23,6 +23,7 @@ camera.awb_gains = g
 lowColor = np.array([60,128,70],np.uint8)
 upColor = np.array([80,255,255],np.uint8)
 kernel = np.ones((5,5),np.uint8)
+print("ello")
 
 def pic():
     global name
@@ -37,7 +38,7 @@ def constant():
     camera.capture('/home/pi/comp_vis/MiniProject/constant.jpg')
     
 pic()
-img2 = cv.imread('%s.jpg' % (name),1)
+img2 = cv.imread('/home/pi/comp_vis/MiniProject/%s.jpg' % (name),1)
 cv.imshow('pic', img2)
 cv.waitKey(0)
 cv.destroyAllWindows()
@@ -75,7 +76,7 @@ print("The program will now find the quadrant the marker is in. Press Ctl+c to e
 try:
     while(True):
         constant()
-        c = cv.imread('constant.jpg')
+        c = cv.imread('/home/pi/comp_vis/MiniProject/constant.jpg')
         hsv_c = cv.cvtColor(c,cv.COLOR_BGR2HSV)
         mask = cv.inRange(hsv_c,lowColor,upColor)
         final_c = cv.bitwise_and(c,c, mask = mask)
