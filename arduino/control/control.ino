@@ -1,7 +1,7 @@
 #include <Encoder.h>
 #include "DualMC33926MotorShield.h"
 
-Encoder myEnc(2, 3);  // Declare encoder object
+Encoder myEnc(2, 5);  // Declare encoder object
 
 const int SAMPLE_TIME = 10;
 float voltage = 0;
@@ -25,50 +25,50 @@ void setup() {
   pinMode(speedB, OUTPUT);
   pinMode(statusFlag, INPUT);
 
-  Serial.begin(9600);
+  Serial.begin(115200);
   Serial.println("Encoder Test: ");
 
-    digitalWrite(enablePin, HIGH);        //turn motor on
+  digitalWrite(enablePin, HIGH);        //turn motor on
   digitalWrite(directionA, rotationA);  //set direction of motor
 }
 
 int sleep = 1000;
 unsigned long time_now = 0;
 
-float newRads = 0.00;     //initalize radians
-long oldPosition = -999;  //initialize old count of encoder
+
+//long oldPosition = -999;  //initialize old count of encoder
 
 void loop() {
-  int motor_speed = (int)(voltage / 5.0 * 255.0);
-  
-//  digitalWrite(enablePin, HIGH);        //turn motor on
-//  digitalWrite(directionA, rotationA);  //set direction of motor
-  analogWrite(speedA, motor_speed);              //set speed of motor
 
   if(millis() >= sleep){
-    voltage = 1.0;
+    voltage = 2.5;
   }
+
+    int motor_speed = (int)(voltage / 5.0 * 255.0);
+  
+  analogWrite(speedA, motor_speed);              //set speed of motor
+
 
   if(millis() >= time_now + SAMPLE_TIME){
     time_now += SAMPLE_TIME;
-    long newPosition = myEnc.read();
-    newRads = (float)(newPosition*PI)/3200;
-    Serial.println(newRads);
+    read_motor();
+    if(millis() > time_now+SAMPLE_TIME) Serial.println("Running Behind");
   }
   
-  //test I setup to turn wheel one full rotation one direction, then one full rotation the other direction
-//  while((newRads < 3.14) && (newRads > -3.14)){    
-//    long newPosition = myEnc.read();      //  read position of encoder
-//    if(newPosition != oldPosition){
-//      newRads = (float)(newPosition*PI)/3200;     // converts encoder position count to radians, 3200 counts per rotation
-//      Serial.println(newRads);
-//      oldPosition = newPosition;
+}
+
+float newRads = 0.00;     //initalize radians
+float lastRads = 0.00;
+void read_motor(){
+    long newPosition = myEnc.read();
+    newRads = (float)(newPosition*PI)/3200;
+//    if(newRads >= PI){
+//      analogWrite(speedA, 0);
+//      while(1);
 //    }
-//  }
-//  digitalWrite(enablePin, LOW);   //turn motor off
-//  delay(2000);
-//  myEnc.write(0);                 //reset encoder count
-//  newRads = 0;                    //reset radians count
-//  rotationA = !rotationA;           //toggle rotation direction
-  
+//    Serial.println(newRads);
+    Serial.print(voltage);
+    Serial.print(", ");
+    Serial.println((newRads-lastRads)/(SAMPLE_TIME)*1000.0);
+    lastRads = newRads;
 }
