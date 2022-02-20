@@ -123,6 +123,7 @@ try:
 #            print("RPI: Hi Arduino, I sent you ", setpoint)
     
             # Print message left to right
+            lcd.clear()
             lcd.text_direction = lcd.LEFT_TO_RIGHT
             lcd.message = "Setpoint: " + str(setpoint)
             # sleep one second
@@ -133,12 +134,15 @@ try:
 #            print()
                 
         except IndexError:
-            #print("No markers found.")
+            lcd.text_direction = lcd.LEFT_TO_RIGHT
+            lcd.message = "No Markers Found"
             
             
 except KeyboardInterrupt:
     pass
-
+    lcd.clear()
+    lcd.text_direction = lcd.LEFT_TO_RIGHT
+    lcd.message = "Done"
     
 
      

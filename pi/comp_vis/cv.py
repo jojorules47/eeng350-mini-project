@@ -4,10 +4,10 @@ from time import sleep
 import numpy as np
 import sys
 
+#Camera Setup
+
 width = 512
 height = 288
-
-
 camera = PiCamera()
 camera.resolution = (width,height)
 camera.framerate = 30
@@ -19,11 +19,13 @@ g = camera.awb_gains
 camera.awb_mode = 'off'
 camera.awb_gains = g
 
+#Color Mask
 
 lowColor = np.array([60,128,70],np.uint8)
 upColor = np.array([80,255,255],np.uint8)
 kernel = np.ones((5,5),np.uint8)
-print("ello")
+
+#Pic Functions
 
 def pic():
     global name
@@ -36,6 +38,8 @@ def pic():
 
 def constant():
     camera.capture('/home/pi/comp_vis/MiniProject/constant.jpg')
+    
+#Image processing test
     
 pic()
 img2 = cv.imread('/home/pi/comp_vis/MiniProject/%s.jpg' % (name),1)
@@ -70,7 +74,7 @@ img0,contours,heirarchy = cv.findContours(thresh,cv.RETR_TREE,cv.CHAIN_APPROX_SI
 cv.imshow("contours", img0)
 cv.waitKey(0)
 cv.destroyAllWindows()
-    
+   
 print("The program will now find the quadrant the marker is in. Press Ctl+c to exit.")
 
 try:
