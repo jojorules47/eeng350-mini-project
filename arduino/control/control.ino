@@ -41,7 +41,7 @@ unsigned long time_now = 0;
 void loop() {
 
   if(millis() >= sleep){
-    voltage = 2.5;
+    voltage = 5.0;
   }
 
     int motor_speed = (int)(voltage / 5.0 * 255.0);
@@ -54,7 +54,11 @@ void loop() {
     read_motor();
     if(millis() > time_now+SAMPLE_TIME) Serial.println("Running Behind");
   }
-  
+
+  if(millis() >= 4000){
+    analogWrite(speedA, 0);
+    while(1);
+  }
 }
 
 float newRads = 0.00;     //initalize radians

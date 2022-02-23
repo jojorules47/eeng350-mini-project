@@ -39,7 +39,7 @@ void loop() {
   static double motor_voltage = 0.0;
 
   if(millis() >= sleep){
-    target_position = PI/4;
+    target_position = 3.14;
   }
 
   if(millis() >= time_now+SAMPLE_TIME){
@@ -65,9 +65,11 @@ void loop() {
   
 }
 
-const double kp = 5.0; //0.4522;
-const double ki = 0.0; //0.1153;
+const double kp = 5.0*0.28845; //2.5*0.4522;
+const double ki = 5.0*0.00959; //2.5*0.1153;
 const double kd = 0.0;
+
+
 /*
  * PID Control loop. Adpated from example found here:
  * https://www.teachmemicro.com/arduino-pid-control-tutorial/
@@ -83,12 +85,12 @@ double controller(double target, double in){
   total_error += error * elapsedTime; // Calculate integrated error
   //double rate_error = (error - lastError)/elapsedTime; // Calculate derivative error
 
-  double out = kp*error; //+ ki*total_error + kd*rate_error; // Total PID output
+  double out = kp*error + ki*total_error; //+ kd*rate_error; // Total PID output
 
   lastError = error;
   previousTime = currentTime;
 
-  out += 0.0;
+  //out += 0.0;
   if(out > 5.0) out = 5.0;
 
   return out;
