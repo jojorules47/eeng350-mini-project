@@ -21,7 +21,7 @@ camera.awb_gains = g
 
 #Color Mask
 
-lowColor = np.array([60,128,70],np.uint8)
+lowColor = np.array([60,200,70],np.uint8)
 upColor = np.array([80,255,255],np.uint8)
 kernel = np.ones((5,5),np.uint8)
 

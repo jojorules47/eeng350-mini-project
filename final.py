@@ -27,20 +27,12 @@ camera.awb_gains = g
 
 #Color Mask
 
-lowColor = np.array([60,128,70],np.uint8)
+lowColor = np.array([60,200,70],np.uint8)
 upColor = np.array([80,255,255],np.uint8)
 kernel = np.ones((5,5),np.uint8)
 
 #Pic Functions
 
-def pic():
-    global name
-    name = input("Input a name for your image: ")
-
-    camera.start_preview()
-    sleep(5)
-    camera.capture('/home/pi/comp_vis/MiniProject/%s.jpg' % (name))
-    camera.stop_preview()
 
 def constant():
     camera.capture('/home/pi/comp_vis/MiniProject/constant.jpg')
@@ -66,7 +58,11 @@ i2c = board.I2C()  # uses board.SCL and board.SDA
 lcd = character_lcd.Character_LCD_RGB_I2C(i2c, lcd_columns, lcd_rows)
 
 # Set LCD color to blue (green ig?)
-lcd.color = [0, 100, 0]
+lcd.color = [200, 25, 25]
+
+#camera.start_preview()
+#sleep(10)
+#camera.stop_preview()
 
 
 def writeNumber(value): 
