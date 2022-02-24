@@ -32,7 +32,7 @@ void setup() {
   Wire.begin(SLAVE_ADDRESS);
 
   // define callbacks for i2c communication
-//  Wire.onReceive(receiveData);
+  Wire.onReceive(receiveData);
  // Wire.onRequest(sendData);
 
   digitalWrite(enablePin, HIGH);
@@ -50,6 +50,7 @@ unsigned long time_now = 0;
 void loop() { 
   // **** Uncomment for serial monitor control ****
   if(Serial.available() > 0){   
+    // Subtract '0' for serial
     input = Serial.read() - '0';
     Serial.print(input);
   }
@@ -69,10 +70,6 @@ void loop() {
         break;
   }
   
-  //angles motor will spin to
-  //change cases to 48, 49, 50, 51 for using serial monitor
-
-
   if(millis() >= time_now+SAMPLE_TIME){
     time_now += SAMPLE_TIME;
 
