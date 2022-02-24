@@ -39,21 +39,22 @@ void loop() {
   static double motor_voltage = 0.0;
 
   if(millis() >= sleep){
-    target_position = 3.14;
+    target_position = PI/2;
   }
 
   if(millis() >= time_now+SAMPLE_TIME){
     time_now += SAMPLE_TIME;
     
     long enc_counts = myEnc.read();
-    double pos_rads = (double)(enc_counts*PI)/3200;
+    double pos_rads = (double)(enc_counts*2.0*PI)/3200;
 
     motor_voltage = controller(target_position, pos_rads);
     //motor_voltage += 0.1;
     int motor_speed = (int)(motor_voltage / 5.0 * 255.0);
     Serial.print(pos_rads);
     Serial.print(" ");
-    Serial.println(motor_voltage);
+    double percent_error = abs(target_position-pos_rads)/target_position * 100.0;
+    Serial.println(percent_error);
 //    //analogWrite(speedA, (int)(2.5/5.0*255.0));
     analogWrite(speedA, motor_speed);
     digitalWrite(directionA, (motor_voltage >= 0.0));  //set direction of motor
@@ -65,8 +66,17 @@ void loop() {
   
 }
 
-const double kp = 5.0*0.28845; //2.5*0.4522;
-const double ki = 5.0*0.00959; //2.5*0.1153;
+// Less agressive
+//const double kp = 5.0*0.24631; //2.5*0.4522;
+//const double ki = 5.0*0.013906; //2.5*0.1153;
+
+// Medium
+const double kp = 5.0*0.36594; //2.5*0.4522;
+const double ki = 5.0*0.029859; //2.5*0.1153;
+
+// Aggresive
+//const double kp = 5.0*0.52776; //2.5*0.4522;
+//const double ki = 5.0*0.0594; //2.5*0.1153;
 const double kd = 0.0;
 
 

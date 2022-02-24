@@ -65,7 +65,7 @@ float newRads = 0.00;     //initalize radians
 float lastRads = 0.00;
 void read_motor(){
     long newPosition = myEnc.read();
-    newRads = (float)(newPosition*PI)/3200;
+    newRads = (float)(newPosition*2.0*PI)/3200;
 //    if(newRads >= PI){
 //      analogWrite(speedA, 0);
 //      while(1);
