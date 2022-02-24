@@ -10,6 +10,10 @@ int directionB = 8;   // direction motorB spins
 int speedA = 9;       //speed of motorA, set by PWM
 int speedB = 10;      //speed of motorB, set by PWM
 int statusFlag = 12;  //status flag, 0 if fault
+
+
+double controller(double, double);
+
 void setup() {
   
  // pin setup
@@ -22,102 +26,85 @@ void setup() {
 
   pinMode(13, OUTPUT);
   Serial.begin(115200); // start serial for output
+
+  Serial.println("Position Voltage Error");
   // initialize i2c as slave
   Wire.begin(SLAVE_ADDRESS);
 
   // define callbacks for i2c communication
-  Wire.onReceive(receiveData);
+//  Wire.onReceive(receiveData);
  // Wire.onRequest(sendData);
 
-  Serial.println("Ready!");
+  digitalWrite(enablePin, HIGH);
 
- // Serial.begin(9600);
-  
 }
 int input = 0;
-int angle = 2;
 
+double newRads = 0.00;     //initalize radians
+double oldRads = 0.00;
+double motor_voltage = 0.0;
 
-float newRads = 0.00;     //initalize radians
-float oldRads = 0.00;
-long oldPosition = -999;  //initialize old count of encoder
-int clockWise = LOW; 
-int counterClockWise = HIGH; //initialize rotation direction of motorA, set LOW to spin opposite direction
+const int SAMPLE_TIME = 10;
+unsigned long time_now = 0;
 
-
-void loop() {
-  digitalWrite(enablePin, LOW);        //turn motor on
-//digitalWrite(directionA, leftRight);  //set direction of motor
-  analogWrite(speedA, 50);   
+void loop() { 
   // **** Uncomment for serial monitor control ****
   if(Serial.available() > 0){   
-    input = Serial.read();
-  Serial.print(input);
+    input = Serial.read() - '0';
+    Serial.print(input);
+  }
+  
+  switch(input){
+      case 0:
+        newRads = 0.00;
+        break;
+      case 1:
+        newRads = PI/2;
+        break;
+      case 2:
+        newRads = PI;
+        break;
+      case 3:
+        newRads = 3*PI/2;
+        break;
   }
   
   //angles motor will spin to
   //change cases to 48, 49, 50, 51 for using serial monitor
-  switch(input){
-    case '0':
-      newRads = 0.00;
-      break;
-    case '1':
-      newRads = 1.57;
-      break;
-    case '2':
-      newRads = 3.14;
-      break;
-    case '3':
-      newRads = 4.71;
-      break;
-   // default:
-     // newRads = 0.00;
-      
+
+
+  if(millis() >= time_now+SAMPLE_TIME){
+    time_now += SAMPLE_TIME;
+
+    // Make motor go to newRads value
+    drive_motor();
+    
+    if(millis() > time_now+SAMPLE_TIME) Serial.println("Took too long");
   }
-  if(newRads == oldRads){               //if desired angle equals current angle motor stays put
-    digitalWrite(enablePin, LOW);
-  }
-  else if(oldRads < newRads){           // if desired angle is greater than current angle, rotate counter clockwise
-    rotateCounterClockwise();
-  }
-  else if(oldRads > newRads){           // if desired angle is greater than current angle, rotate clockwise
-    rotateClockwise();
-  }
-  
+
+
 }
 
-//rotates motor counter clockwise
-void rotateCounterClockwise(){
-  digitalWrite(directionA, counterClockWise);
-  digitalWrite(enablePin, HIGH);
-  while(oldRads <= newRads){
-    long newPosition = myEnc.read(); 
-    oldRads = (float)(2*newPosition*PI)/3200; //  read position of encoder
-    if(newPosition != oldPosition){
-      Serial.println(oldRads);
-      oldPosition = newPosition;
-    }
-  }
-  digitalWrite(enablePin, LOW);
-  oldRads = newRads;
-  //delay(500);
-}
+void drive_motor(){
+    long enc_counts = myEnc.read();
+    oldRads = (double)(enc_counts*2.0*PI)/3200;
 
-//rotates motor clockwise
-void rotateClockwise(){
-  digitalWrite(directionA, clockWise);
-  digitalWrite(enablePin, HIGH);
-  while(oldRads >= newRads){
-    long newPosition = myEnc.read(); //  read position of encoder
-    oldRads = (float)(2*newPosition*PI)/3200;  
-    if(newPosition != oldPosition){
-      Serial.println(oldRads);
-      oldPosition = newPosition;
-    }
-  }
-  digitalWrite(enablePin, LOW);
-  oldRads = newRads;
- // delay(500);
+    // Get PI controlled voltage
+    motor_voltage = controller(newRads, oldRads);
+    
+    int motor_speed = (int)(abs(motor_voltage) / 5.0 * 255.0);
+
+    double error = abs(newRads-oldRads);
+
+    Serial.print(oldRads);
+    Serial.print(" ");
+        Serial.print(motor_voltage);
+    Serial.print(" ");
+    Serial.println(error);
+
+    // Motor direction is counterclockwise (HIGH) if positive direction, clockwise if negative
+    digitalWrite(directionA, (motor_voltage >= 0.0));  //set direction of motor
+    analogWrite(speedA, motor_speed);
 }
 
 void receiveData(int byteCount){
@@ -140,4 +127,46 @@ void receiveData(int byteCount){
 //    }
   }
   Serial.println(' ');
+}
+
+
+// ****** PI Controller config ****** //
+// Less agressive
+//const double kp = 5.0*0.24631;
+//const double ki = 5.0*0.013906;
+
+// Medium
+const double kp = 5.0*0.36594;
+const double ki = 5.0*0.029859;
+
+// Aggresive
+//const double kp = 5.0*0.52776;
+//const double ki = 5.0*0.0594;
+
+const double kd = 0.0;
+/*
+ * PID Control loop. Adpated from example found here:
+ * https://www.teachmemicro.com/arduino-pid-control-tutorial/
+ */
+double controller(double target, double in){
+  static unsigned long previousTime = 0;
+  static double total_error=0, lastError=0;
+  
+  unsigned long currentTime = millis(); // Get current time
+  double elapsedTime = (double)(currentTime - previousTime)/1000.0; // Calculate interval
+
+  double error = target - in; // Determine current error
+  total_error += error * elapsedTime; // Calculate integrated error
+  double rate_error = (error - lastError)/elapsedTime; // Calculate derivative error
+
+  double out = kp*error + ki*total_error + kd*rate_error; // Total PID output
+
+  lastError = error;
+  previousTime = currentTime;
+
+  //out += 0.0;
+  if(out > 5.0) out = 5.0;
+  if(out < -5.0) out = -5.0;
+
+  return out;
 }
