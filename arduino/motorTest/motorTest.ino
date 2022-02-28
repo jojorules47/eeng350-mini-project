@@ -54,7 +54,7 @@ void loop() {
     input = Serial.read() - '0';
     Serial.print(input);
   }
-  
+  // *** Case corresponds to position marker the camera reads *** 
   switch(input){
       case 0:
         newRads = 0.00;
@@ -69,7 +69,7 @@ void loop() {
         newRads = 3*PI/2;
         break;
   }
-  
+  //** Sampling time **
   if(millis() >= time_now+SAMPLE_TIME){
     time_now += SAMPLE_TIME;
 
@@ -101,9 +101,10 @@ void drive_motor(){
 
     // Motor direction is counterclockwise (HIGH) if positive direction, clockwise if negative
     digitalWrite(directionA, (motor_voltage >= 0.0));  //set direction of motor
-    analogWrite(speedA, motor_speed);
+    analogWrite(speedA, motor_speed);                  // set speed of motor
 }
 
+//** Communications between Pi and arduino **
 void receiveData(int byteCount){
 
   Serial.print("received: ");
