@@ -4,7 +4,7 @@ Required Libraries:
 
 * `DualMC33926MotorShield.h` - Installed via Arduino IDE
 
-* `Encoder.h` - Found on git [here]()
+* `Encoder.h` - Found on git [here](https://www.pjrc.com/teensy/td_libs_Encoder.html)
 
 ![](../img/motor_system.jpg)
 
