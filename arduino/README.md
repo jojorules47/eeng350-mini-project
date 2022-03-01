@@ -6,11 +6,15 @@ Required Libraries:
 
 * `Encoder.h` - Found on git [here](https://www.pjrc.com/teensy/td_libs_Encoder.html)
 
+* `Wire.h` - Installed via Arduino IDE
+
 ![](../img/motor_system.jpg)
 
 ## Integration Utilities
 
-EENG350MP
+The `motorComms.ino` file is a reference file containing functions used to establish I2C communication with a Raspberry Pi.
+
+The `Wire.h` library is used to allow the Arduino to be defined as a slave in a bus connection. Skeleton functions are listed for sending and receiving various types of data to and from the Raspberry Pi. Modified versions of these functions were implemented into files such as `motorTest.ino`.
 
 ## Feedback Control Utilities and Examples
 
