@@ -38,9 +38,9 @@ void setup() {
 }
 int input = 0;
 
-double newRads = 0.00; // initalize radians
-double oldRads = 0.00;
-double motor_voltage = 0.0;
+double newRads = 0.00; // Initalize target (radians)
+double oldRads = 0.00; // Initialize current position (radians)
+double motor_voltage = 0.0; // Initialize motor voltage (volts)
 
 const int SAMPLE_TIME = 10;
 unsigned long time_now = 0;
@@ -86,7 +86,7 @@ void drive_motor() {
   // Get PI controlled voltage
   motor_voltage = controller(newRads, oldRads);
 
-  int motor_speed = (int)(abs(motor_voltage) / 5.0 * 255.0);
+  int motor_speed = (int)(abs(motor_voltage) / 5.0 * 255.0); // Motor voltage to PWM percentage
 
   double error = abs(newRads - oldRads);
 
@@ -157,7 +157,7 @@ double controller(double target, double in) {
       (error - lastError) / elapsedTime; // Calculate derivative error
 
   double out =
-      kp * error + ki * total_error + kd * rate_error; // Total PID output
+      kp * error + ki * total_error + kd * rate_error; // Total PID output (volts)
 
   lastError = error;
   previousTime = currentTime;
