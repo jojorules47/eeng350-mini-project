@@ -10,9 +10,4 @@ This folder includes the save location for the constant and test images, which a
 
 The python file in this folder was a test file and a proof of concept that was the working file for edits, and was eventually fitted into the `final.py` file.
 
-
-## I2C folder:
-
-`motorComms`: This file includes the baseline functions and libraries used for establishing I2C communication with the Arduino using the Raspberry Pi.
-
-The libraries used include `smbus`, `time`, `board`, and `adafruit_character_lcd`, which allow us to communicate with the Arduino and LCD using I2C communication. These libraries, as well as modified versions of the send and receive data functions, were merged into the `final.py` file.
+This computer vision program uses a mask and a bitwise and to isolate a color, then converts to greyscale, uses thresholding and finds the contours of the masked shape. Then the center of the shape is found, and the quadrant the shape is in controls the motor.
