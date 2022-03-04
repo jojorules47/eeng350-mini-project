@@ -1,5 +1,5 @@
-#include <Encoder.h>
 #include "DualMC33926MotorShield.h"
+#include <Encoder.h>
 
 Encoder encA(2, 5);  // Declare encoder object
 Encoder encB(3, 6);  // Declare encoder object
@@ -7,23 +7,23 @@ Encoder encB(3, 6);  // Declare encoder object
 const int SAMPLE_TIME = 5;
 float voltage = 0;
 
-int enablePin = 4;       // enable pin, set LOW to turn off motor, set HIGH to turn on
-int directionA = 7;   //direction motorA spins
-int directionB = 8;   // direction motorB spins
-int speedA = 9;       //speed of motorA, set by PWM
-int speedB = 10;      //speed of motorB, set by PWM
-int statusFlag = 12;  //status flag, 0 if fault
+int enablePin = 4; // enable pin, set LOW to turn off motor, set HIGH to turn on
+int directionA = 7;  // direction motorA spins
+int directionB = 8;  // direction motorB spins
+int speedA = 9;      // speed of motorA, set by PWM
+int speedB = 10;     // speed of motorB, set by PWM
+int statusFlag = 12; // status flag, 0 if fault
 
 int rotationA = LOW;      //initialize rotation direction of motorA, set LOW to spin opposite direction
 int rotationB = LOW;      //initialize rotation direction of motorA, set LOW to spin opposite direction
 
 
 void setup() {
-  
- // pin setup
+
+  // pin setup
   pinMode(enablePin, OUTPUT);
   pinMode(directionA, OUTPUT);
-  pinMode(directionB, OUTPUT);     
+  pinMode(directionB, OUTPUT);
   pinMode(speedA, OUTPUT);
   pinMode(speedB, OUTPUT);
   pinMode(statusFlag, INPUT);
@@ -36,6 +36,7 @@ void setup() {
   digitalWrite(directionB, rotationB);  //set direction of motor
 }
 
+// Millis delay variables
 int sleep = 1000;
 int time_end = 3000;
 unsigned long time_now = 0;
@@ -54,8 +55,10 @@ void loop() {
   analogWrite(speedA, motor_speed);              //set speed of motor
   analogWrite(speedB, motor_speed);              //set speed of motor
 
+  analogWrite(speedA, motor_speed); // set speed of motor
 
-  if(millis() >= time_now + SAMPLE_TIME){
+  // Sample motor velocity, report over-run
+  if (millis() >= time_now + SAMPLE_TIME) {
     time_now += SAMPLE_TIME;
     print_data();
     if(millis() > time_now+SAMPLE_TIME) Serial.println("Running Behind");
