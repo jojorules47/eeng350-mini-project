@@ -9,7 +9,7 @@
 
 // Motor control utilities
 int volt_to_pwm(double volts) { return (int)(volts / 5.0 * 255.0); }
-bool volt_to_dir(double volts) { return (bool)(volts >= 0.0); }
+bool volt_to_dir(double volts) { return (bool)(volts <= 0.0); }
 
 /**
  * Read motor velocity from a given encoder,
@@ -62,7 +62,7 @@ double controller(double current, double target,
  * Inner loop velocity controller to control forward velocity (rho_dot).
  */
 double motor_speed(double velA, double velB, double speed) {
-  double rho_dot = wheel_size * (velA + velB) / 2.0;
+  double rho_dot = (velA + velB) / 2.0; // wheel_size
 
   return controller(rho_dot, speed, forwardPID);
 }
@@ -71,7 +71,7 @@ double motor_speed(double velA, double velB, double speed) {
  * Inner loop rotational velocity controller to control turning (phi_dot).
  */
 double motor_direction(double velA, double velB, double turning) {
-  double phi_dot = wheel_size * (velA - velB) / wheel_dist;
+  double phi_dot = (velA - velB); // wheel_size, wheel_dist
 
   return controller(phi_dot, turning, turningPID);
 }
@@ -98,7 +98,9 @@ void motor_control(double speed, double turning) {
   Serial.print(", ");
   Serial.print(voltsB);
   Serial.print(", ");
-  Serial.println((velA+velB)/2.0);
+   Serial.print((velA+velB)/2.0,4);
+  Serial.print(", ");
+  Serial.println((velA-velB),4);
 
   analogWrite(speedA, volt_to_pwm(voltsA));
   digitalWrite(directionA, volt_to_dir(voltsA));

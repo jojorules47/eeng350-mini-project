@@ -16,11 +16,11 @@ struct control_t {
 };
 
 /*** Define Constants ***/
-const int SERIAL_RATE = 115200;
+const unsigned int SERIAL_RATE = 115200;
 const int SAMPLE_TIME = 10;
 
-const double wheel_size = 7.25;
-const double wheel_dist = 10.0; // TODO: fixme
+const double wheel_size = 7.25e-3;
+const double wheel_dist = 23.0e-3; // TODO: fixme
 
 const int enablePin =
     4; // enable pin, set LOW to turn off motor, set HIGH to turn on
@@ -39,8 +39,8 @@ int rotationB = LOW; // initialize rotation direction of motorB, set HIGH to
 Encoder encA(2, 5); // Declare encoder object
 Encoder encB(3, 6); // Declare encoder object
 
-struct control_t forwardPID = {1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0};
-struct control_t turningPID = {1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0};
+struct control_t forwardPID = {2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0};
+struct control_t turningPID = {1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0};
 
 /*** Function Declarations ***/
 int volt_to_pwm(double volts);
