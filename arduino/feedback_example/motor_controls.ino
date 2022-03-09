@@ -1,19 +1,20 @@
+/**
+ * Functions used in the feedback control of the robot. Include
+ * these files for a "drop in" solution for robot controls.
+ * 
+ * TODO: Make solution work
+ */
+
 #include "motor_controls.h"
 
-Encoder encA(2, 5); // Declare encoder object
-Encoder encB(3, 6); // Declare encoder object
+// Motor control utilities
+int volt_to_pwm(double volts) { return (int)(volts / 5.0 * 255.0); }
+bool volt_to_dir(double volts) { return (bool)(volts >= 0.0); }
 
-int rotationA = LOW; // initialize rotation direction of motorA, set LOW to
-                     // spin opposite direction
-int rotationB = LOW; // initialize rotation direction of motorB, set LOW to
-                     // spin opposite direction
-
-struct control_t forwardPID = {1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0};
-struct control_t turningPID = {1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0};
-
-int volt_to_pwm(double volts) { return (int)(voltage / 5.0 * 255.0); }
-bool volt_to_dir(double volts) { return (bool)(motor_voltage >= 0.0); }
-
+/**
+ * Read motor velocity from a given encoder,
+ * using last recorded position to aggregate velocity.
+ */
 double read_motor(Encoder &enc, double &lastPos) {
   long newPosition = enc.read();
   double currentPos = ((double)newPosition * 2.0 * PI) / 3200.0;
@@ -25,16 +26,14 @@ double read_motor(Encoder &enc, double &lastPos) {
   return velocity;
 }
 
-/*
+/**
  * PID Control loop. Adpated from example found here:
  * https://www.teachmemicro.com/arduino-pid-control-tutorial/
+ * control_t struct tracks error terms
  */
-// double controller(double target, double in) {
-double controller(double current, double target_position,
+double controller(double current, double target,
                   struct control_t &pid) {
-  // static unsigned long previousTime = 0;
-  // static double total_error = 0, lastError = 0;
-
+  // TODO: Investigate using constant sample time instead of current time for simplicity
   unsigned long currentTime = millis(); // Get current time
   double elapsedTime =
       (double)(currentTime - pid.previousTime) / 1000.0; // Calculate interval
@@ -42,12 +41,12 @@ double controller(double current, double target_position,
   pid.error = target - current;               // Determine current error
   pid.total_error += pid.error * elapsedTime; // Calculate integrated error
   double rate_error =
-      (pid.error - pid.lastError) / elapsedTime; // Calculate derivative error
+      (pid.error - pid.last_error) / elapsedTime; // Calculate derivative error
 
-  double out = pid.p * error + pid.i * pid.total_error +
+  double out = pid.p * pid.error + pid.i * pid.total_error +
                pid.d * rate_error; // Total PID output
 
-  pid.lastError = pid.error;
+  pid.last_error = pid.error;
   pid.previousTime = currentTime;
 
   // Limit motor voltage, and prevent wind-up
@@ -59,18 +58,29 @@ double controller(double current, double target_position,
   return out;
 }
 
-// TODO: Implement me
+/**
+ * Inner loop velocity controller to control forward velocity (rho_dot).
+ */
 double motor_speed(double velA, double velB, double speed) {
   double rho_dot = wheel_size * (velA + velB) / 2.0;
 
   return controller(rho_dot, speed, forwardPID);
 }
+
+/**
+ * Inner loop rotational velocity controller to control turning (phi_dot).
+ */
 double motor_direction(double velA, double velB, double turning) {
   double phi_dot = wheel_size * (velA - velB) / wheel_dist;
 
   return controller(phi_dot, turning, turningPID);
 }
 
+/**
+ * Control motors to give robot specified forward speed and
+ * rotational velocity using inner control loops. Place this function
+ * in 'main' loop to control robot at a sampled time.
+ */
 void motor_control(double speed, double turning) {
   static double motorA_pos = 0.0;
   static double motorB_pos = 0.0;
@@ -84,9 +94,15 @@ void motor_control(double speed, double turning) {
   double voltsA = (forward_volts + turning_volts) / 2.0;
   double voltsB = (forward_volts - turning_volts) / 2.0;
 
+  Serial.print(voltsA);
+  Serial.print(", ");
+  Serial.print(voltsB);
+  Serial.print(", ");
+  Serial.println((velA+velB)/2.0);
+
   analogWrite(speedA, volt_to_pwm(voltsA));
-  digitalWrite(directionA, volt_to_dir(voltA));
+  digitalWrite(directionA, volt_to_dir(voltsA));
 
   analogWrite(speedB, volt_to_pwm(voltsB));
-  digitalWrite(directionB, volt_to_dir(voltB));
+  digitalWrite(directionB, volt_to_dir(voltsB));
 }

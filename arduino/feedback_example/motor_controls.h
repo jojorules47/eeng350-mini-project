@@ -4,6 +4,7 @@
 #include "DualMC33926MotorShield.h"
 #include <Encoder.h>
 
+/*** Type Definitions ***/
 struct control_t {
   double p;
   double i;
@@ -14,6 +15,7 @@ struct control_t {
   unsigned long previousTime;
 };
 
+/*** Define Constants ***/
 const int SERIAL_RATE = 115200;
 const int SAMPLE_TIME = 10;
 
@@ -28,7 +30,19 @@ const int speedA = 9;      // speed of motorA, set by PWM
 const int speedB = 10;     // speed of motorB, set by PWM
 const int statusFlag = 12; // status flag, 0 if fault
 
-// TODO: Need func defs?
+/*** Define Controls Global Variables ***/
+int rotationA = LOW; // initialize rotation direction of motorA, set HIGH to
+                     // spin opposite direction
+int rotationB = LOW; // initialize rotation direction of motorB, set HIGH to
+                     // spin opposite direction
+
+Encoder encA(2, 5); // Declare encoder object
+Encoder encB(3, 6); // Declare encoder object
+
+struct control_t forwardPID = {1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0};
+struct control_t turningPID = {1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0};
+
+/*** Function Declarations ***/
 int volt_to_pwm(double volts);
 bool volt_to_dir(double volts);
 
