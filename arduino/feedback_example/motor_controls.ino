@@ -8,7 +8,10 @@
 #include "motor_controls.h"
 
 // Motor control utilities
-int volt_to_pwm(double volts) { return (int)(volts / 5.0 * 255.0); }
+int volt_to_pwm(double volts) { 
+  double corr_volts = abs(volts);
+  corr_volts = corr_volts >= 5.0 ? 5.0: corr_volts;
+  return (int)(corr_volts / 5.0 * 255.0); }
 bool volt_to_dir(double volts) { return (bool)(volts <= 0.0); }
 
 /**
@@ -50,10 +53,10 @@ double controller(double current, double target,
   pid.previousTime = currentTime;
 
   // Limit motor voltage, and prevent wind-up
-  if (out > 5.0)
-    out = 5.0;
-  if (out < -5.0)
-    out = -5.0;
+  if (out > 10.0)
+    out = 10.0;
+  if (out < -10.0)
+    out = -10.0;
 
   return out;
 }
@@ -62,7 +65,8 @@ double controller(double current, double target,
  * Inner loop velocity controller to control forward velocity (rho_dot).
  */
 double motor_speed(double velA, double velB, double speed) {
-  double rho_dot = (velA + velB) / 2.0; // wheel_size
+//  double rho_dot = (velA + velB) / 2.0;
+  double rho_dot = wheel_size * (velA + velB) / 2.0;
 
   return controller(rho_dot, speed, forwardPID);
 }
@@ -71,7 +75,8 @@ double motor_speed(double velA, double velB, double speed) {
  * Inner loop rotational velocity controller to control turning (phi_dot).
  */
 double motor_direction(double velA, double velB, double turning) {
-  double phi_dot = (velA - velB); // wheel_size, wheel_dist
+//  double phi_dot = (velA - velB);
+  double phi_dot = wheel_size*(velA - velB)/wheel_dist; // wheel_size, wheel_dist
 
   return controller(phi_dot, turning, turningPID);
 }
@@ -98,9 +103,9 @@ void motor_control(double speed, double turning) {
   Serial.print(", ");
   Serial.print(voltsB);
   Serial.print(", ");
-   Serial.print((velA+velB)/2.0,4);
+   Serial.print(wheel_size*(velA+velB)/2.0,4);
   Serial.print(", ");
-  Serial.println((velA-velB),4);
+  Serial.println(wheel_size*(velA-velB)/wheel_dist,4);
 
   analogWrite(speedA, volt_to_pwm(voltsA));
   digitalWrite(directionA, volt_to_dir(voltsA));

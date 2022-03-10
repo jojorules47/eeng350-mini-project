@@ -39,8 +39,10 @@ int rotationB = LOW; // initialize rotation direction of motorB, set HIGH to
 Encoder encA(2, 5); // Declare encoder object
 Encoder encB(3, 6); // Declare encoder object
 
-struct control_t forwardPID = {2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0};
-struct control_t turningPID = {1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0};
+//struct control_t forwardPID = {259.067, 0.0, 0.0, 0.0, 0.0, 0.0, 0};
+struct control_t forwardPID = {175.6983, 2600.2627, 0.0, 0.0, 0.0, 0.0, 0};
+//struct control_t turningPID = {1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0};
+struct control_t turningPID = {29.4247, 0*404.5903, 0.0, 0.0, 0.0, 0.0, 0};
 
 /*** Function Declarations ***/
 int volt_to_pwm(double volts);

@@ -35,7 +35,7 @@ void loop() {
 
   // Step motor position to PI/2 after 1 second
   if (millis() >= sleep) {
-    target_vel = 1.0;
+    target_vel = 0.005;
     target_turn = 0.2;
   }
 
