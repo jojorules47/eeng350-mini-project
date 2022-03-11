@@ -86,7 +86,9 @@ double motor_direction(double velA, double velB, double turning) {
  * rotational velocity using inner control loops. Place this function
  * in 'main' loop to control robot at a sampled time.
  */
+ double targetPos = 5.0;
 void motor_control(double speed, double turning) {
+  static double lastX = 0.0;
   static double motorA_pos = 0.0;
   static double motorB_pos = 0.0;
 
@@ -99,9 +101,18 @@ void motor_control(double speed, double turning) {
   double voltsA = (forward_volts + turning_volts) / 2.0;
   double voltsB = (forward_volts - turning_volts) / 2.0;
 
-  Serial.print(voltsA);
+  double nextX = lastX + SAMPLE_TIME/1000.0 * wheel_size*(velA+velB)/2.0;
+  if(nextX >= targetPos){
+    voltsA = voltsB = 0.0;
+  }
+  lastX = nextX;
+
+//  Serial.print(voltsA);
+//  Serial.print(", ");
+//  Serial.print(voltsB);
+  Serial.print(lastX);
   Serial.print(", ");
-  Serial.print(voltsB);
+  Serial.print(targetPos);
   Serial.print(", ");
    Serial.print(wheel_size*(velA+velB)/2.0,4);
   Serial.print(", ");

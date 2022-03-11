@@ -37,11 +37,11 @@ void setup() {
 }
 
 int sleep = 1000;
-int time_end = 2000;
+int time_end = 2500;
 unsigned long time_now = 0;
 
-double r = 0.2378; // Wheel radius, 7.25cm
-double d = 0.7545; // Wheel dist, 23cm
+const double r = 0.245; //7.25e-3;
+const double d = 0.443;
 //long oldPosition = -999;  //initialize old count of encoder
 
 void loop() {
@@ -85,9 +85,9 @@ void print_data(){
     Serial.print(", ");
 //    rho_dot = r*(velA+velB)/2
 //     phi_dot = r*(velA-velB)/2
-    Serial.print(r*(velA+velB)/2.0,4);
+    Serial.print(r*(velA+velB)/2.0,6);
     Serial.print(", ");
-    Serial.println(r*(velA-velB)/d,4);
+    Serial.println(r*(velA-velB)/d,6);
 //   Serial.print(velA,4);
 //   Serial.print(", ");
 //   Serial.println(velB,4);
