@@ -27,13 +27,15 @@ g = camera.awb_gains
 camera.awb_mode = 'off'
 camera.awb_gains = g
 
-lowColor = np.array([75,200,20],np.uint8)
+lowColor = np.array([100,25,50],np.uint8)
 upColor = np.array([135,255,255],np.uint8)
+#lowColor = np.array([100,100,100],np.uint8)
+#upColor = np.array([120,255,255],np.uint8)
 kernel = np.ones((5,5),np.uint8)
 
 def constant():
     camera.capture('/home/pi/comp_vis/Assignment2/constant.jpg')
-    img=cv.imread('/home/pi/comp_vis/Assignment2/constant.jpg')
+    new=cv.imread('/home/pi/comp_vis/Assignment2/constant.jpg')
     h,w=img.shape[:2]
     ncm,roi=cv.getOptimalNewCameraMatrix(mtx,dist,(w,h),1,(w,h))
     new = cv.undistort(img,mtx,dist,None,ncm)
@@ -68,7 +70,7 @@ def none(tape): # no tape found
 
 def found(tape): # tape found
     lcd.text_direction = lcd.LEFT_TO_RIGHT
-    lcd.message = "Tape Found!\nAngle: " + str(angle)
+    lcd.message = "Tape Found!\nAngle: " + "{:.2f}".format(angle)
     
     if not tape:
         lcd.clear()
@@ -82,25 +84,25 @@ while(True):
     try:
         constant()
         img2 = cv.imread('/home/pi/comp_vis/new.jpg')
-        #cv.imshow('pic', img2)
-        #cv.waitKey(0)
-        #cv.destroyAllWindows()
+#        cv.imshow('pic', img2)
+#        cv.waitKey(0)
+#        cv.destroyAllWindows()
         hsv = cv.cvtColor(img2,cv.COLOR_BGR2HSV)
-        #cv.imshow('hsv', hsv)
-        #cv.waitKey(0)
-        #cv.destroyAllWindows()
+#        cv.imshow('hsv', hsv)
+#        cv.waitKey(0)
+#        cv.destroyAllWindows()
         mask = cv.inRange(hsv,lowColor,upColor)
         final = cv.bitwise_and(img2,img2, mask = mask)
-        #cv.imshow('Final', final)
-        #cv.waitKey(0)
-        #cv.destroyAllWindows()
+#        cv.imshow('Final', final)
+#        cv.waitKey(0)
+#        cv.destroyAllWindows()
         kernel = np.ones((5,5),np.uint8)
-        clean = cv.blur(final,(3,3))
-        clean2 = cv.morphologyEx(clean, cv.MORPH_OPEN, kernel)
-        clean3 = cv.morphologyEx(clean2, cv.MORPH_CLOSE, kernel)
-        #cv.imshow('Clean', clean3)
-        #cv.waitKey(0)
-        #cv.destroyAllWindows()
+        clean3 = cv.blur(final,(3,3))
+#        clean2 = cv.morphologyEx(clean, cv.MORPH_OPEN, kernel)
+#        clean3 = cv.morphologyEx(clean2, cv.MORPH_CLOSE, kernel)
+#        cv.imshow('Clean', clean3)
+#        cv.waitKey(0)
+#        cv.destroyAllWindows()
         grey = cv.cvtColor(clean3,cv.COLOR_BGR2GRAY)
 
         #cv.imshow("contours", grey)
@@ -110,21 +112,26 @@ while(True):
 
         ret,thresh = cv.threshold(grey,15,255,cv.THRESH_BINARY)
         img0,contours,heirarchy = cv.findContours(thresh,cv.RETR_TREE,cv.CHAIN_APPROX_SIMPLE)
-        #cv.imshow("contours", img0)
-        #cv.waitKey(0)
-        #cv.destroyAllWindows()
+#        cv.imshow("contours", img0)
+#        cv.waitKey(0)
+#        cv.destroyAllWindows()
         try:
             cnt_c = contours[0]
             M_c = cv.moments(cnt_c)
+            if (M_c['m00'] == 0):
+                continue
             cxc = int(M_c['m10']/M_c['m00'])
             cyc = int(M_c['m01']/M_c['m00'])
+            
             tape = True
+            state = state(tape)
 #            print(cxc)
 #            print(cyc)
             
             fov = 62.2
+            fudge = 1.00
             if(cxc<(wi/2)): 
-                angle = (fov/2)*(((wi/2)-cxc)/((wi/2)))
+                angle = (fov/2)*fudge*(((wi/2)-cxc)/((wi/2)))
                 print("The camera needs to turn {:.2f} degrees to center the marker." .format(angle))
             else:
                 angle = -(fov/2)*((cxc-(wi/2))/(wi/2))
@@ -135,6 +142,7 @@ while(True):
             
         except IndexError:
             tape= False
+            state = state(tape)
             print("No markers found.")
     except KeyboardInterrupt:
         pass
