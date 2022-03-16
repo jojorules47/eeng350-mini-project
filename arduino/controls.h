@@ -47,9 +47,14 @@ Encoder encB(3, 6); // Declare encoder object
 //struct control_t forwardPID = {34.327, 175.6983, 0.0, 0.0, 0.0, 0.0, 0};
 //struct control_t turningPID = {0.1794,0.0, 0.0, 0.0, 0.0, 0.0, 0};
 //struct control_t anglePID = {10.0 ,3.0,0.0, 0.0, 0.0, 0.0, 0};
-struct control_t forwardPID = {34.327, 175.6983, 0.0, 0.0, 0.0, 0.0, 0};
-struct control_t turningPID = {4.0,0.1, 0.0, 0.0, 0.0, 0.0, 0};
-struct control_t anglePID = {0.25, 0.01, 0.0, 0.0, 0.0, 0.0, 0};
+
+//struct control_t forwardPID = {0*34.327, 175.6983/10, 0.0, 0.0, 0.0, 0.0, 0};
+//struct control_t turningPID = {0*4.0,0.9, 0.0, 0.0, 0.0, 0.0, 0};
+//struct control_t anglePID = {0.25, 0.01, 0.0, 0.0, 0.0, 0.0, 0};
+
+struct control_t forwardPID = {0.0, 4.0, 0.0, 0.0, 0.0, 0.0, 0};
+struct control_t turningPID = {0.0,5.0, 0.0, 0.0, 0.0, 0.0, 0};
+struct control_t anglePID = {0.0, 5.0, 0.0, 0.0, 0.0, 0.0, 0};
 
 /*** Function Declarations ***/
 int volt_to_pwm(double volts);
@@ -61,7 +66,7 @@ double controller(double current, double target_position,
 
 double motor_speed(double velA, double velB, double speed);
 double motor_direction(double velA, double velB, double turning);
-void motor_control(double speed, double turning);
+bool motor_control(double speed, double turning);
 double read_angle();
 
 #endif //__CONTROLS_H__
