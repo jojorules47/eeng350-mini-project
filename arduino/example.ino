@@ -25,9 +25,10 @@ void setup() {
   digitalWrite(directionB, rotationB); // set direction of motor
 }
 
+bool first = false;
 // Millis delay variables
 double target_vel = 0.0;
-double target_turn = 0.0;
+double target_turn = PI;
 int sleep = 1000;
 
 //double pos = 0.0;
@@ -37,9 +38,11 @@ void loop() {
   // static double motor_voltage = 0.0;
 
   // Step motor position to PI/2 after 1 second
-  if (millis() >= sleep) {
+  if (millis() >= sleep && first == false) {
     target_vel = 0.0;
-    target_turn = 0.2;
+    target_turn = PI;
+    first = true;
+//    Serial.println("changing");
   }
 
 /*  long encCountsA = encA.read();
@@ -60,7 +63,19 @@ void loop() {
     time_now += SAMPLE_TIME;
 
     // Control motors to move in a straight line. See `motor_controls.ino`
-    motor_control(target_vel, target_turn);
+    Serial.print(target_turn);
+    Serial.print(", ");
+    Serial.print(target_vel);
+    Serial.print(" ");
+    bool done_yet = motor_control(target_vel, target_turn);
+          
+    if(done_yet){
+//          while(1);
+//          Serial.println("we done");
+//Serial.println("done");
+      target_turn = 0.0;
+      target_vel = 0.1;
+    }
     
     if (millis() > time_now + SAMPLE_TIME)
       Serial.println("Took too long");
