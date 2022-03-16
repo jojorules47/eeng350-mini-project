@@ -32,25 +32,9 @@ double read_motor(Encoder &enc, double &lastPos) {
 double read_angle(){
   double radiansA = ((double)encA.read() * 2.0 * PI)/ 3200.0;
   double radiansB = -1.0*((double)encB.read() * 2.0 * PI)/ 3200.0;
-//  Serial.print(radiansA);
-//  Serial.print(", ");
-//  Serial.println(radiansB);
-  
-//  long radiansA = ((double)encA.read() * 360.0)/ 3200.0;
-//  long radiansB = ((double)encB.read() * 360.0)/ 3200.0;
   double phi = wheel_size*(radiansB - radiansA)/wheel_dist;
   return phi;
 }
-
-//void rotate_robot(double targetPhi){
-//  double velA = -1.0 * read_motor(encA, motorA_pos);
-//  double velB = read_motor(encB, motorB_pos);
-//  double current_angle = read_angle();
-//  double angle_error = targetPhi - current_angle;
-//  double turning_volts = motor_direction(velA, velB, turning);
-//  motor_control(0.0, 1.0);
-  
-//}
 
 /**
  * PID Control loop. Adpated from example found here:
@@ -65,20 +49,18 @@ double controller(double current, double target,
 
   pid.error = target - current;               // Determine current error
   pid.total_error += pid.error * elapsedTime; // Calculate integrated error
-  double rate_error =
-      (pid.error - pid.last_error) / elapsedTime; // Calculate derivative error
+  double rate_error = (pid.error - pid.last_error) / elapsedTime; // Calculate derivative error
 
-  double out = pid.p * pid.error + pid.i * pid.total_error +
-               pid.d * rate_error; // Total PID output
+  double out = pid.p * pid.error + pid.i * pid.total_error + pid.d * rate_error; // Total PID output
 
   pid.last_error = pid.error;
   pid.previousTime = currentTime;
 
   // Limit motor voltage, and prevent wind-up
-  if (out > 10.0)
-    out = 10.0;
-  if (out < -10.0)
-    out = -10.0;
+  if (out > 5.0)
+    out = 5.0;
+  if (out < -5.0)
+    out = -5.0;
 
   return out;
 }
@@ -120,6 +102,8 @@ double motor_speed(double velA, double velB, double speed) {
 //  double rho_dot = (velA + velB) / 2.0;
   double rho_dot = wheel_size * (velA + velB) / 2.0;
 
+  
+
   return controller(rho_dot, speed, forwardPID);
 }
 
@@ -137,23 +121,26 @@ double motor_speed(double velA, double velB, double speed) {
 //  return controller(my_phi_dot, target_phi, turningPID);
 //}
 
+bool angle_done = false;
 double motor_direction(double velA, double velB, double turning) {
 //  double phi_dot = (velA - velB);
-double my_angle = PI/2;
+//double my_angle = PI/2;
   double current_angle = read_angle()/2;
 
-  double target_phi = controller(current_angle, my_angle, 0.4, anglePID);
+  double target_phi = controller(current_angle, turning, 0.4, anglePID);
 //  if(target_phi > 0.2) target_phi = 0.2;
   Serial.print(current_angle);
   Serial.print("/");
-  Serial.print(my_angle);
+  Serial.print(turning);
   Serial.print(", ");
   Serial.println(target_phi);
   double phi_dot = wheel_size*(velA - velB)/wheel_dist; // wheel_size, wheel_dist
 
   double voltage = controller(phi_dot, target_phi, turningPID);
-  if(current_angle >= my_angle)
+  if(turning != 0.0 && abs(current_angle) >= abs(turning)){
     voltage = 0.0;
+    angle_done = true;
+  }
 
     return voltage;
 }
@@ -162,23 +149,37 @@ double my_angle = PI/2;
  * rotational velocity using inner control loops. Place this function
  * in 'main' loop to control robot at a sampled time.
  */
- double targetPos = 5.0;
+ double targetPos = 3.0;
  double targetAngle = 0.0;
-void motor_control(double speed, double turning) {
+bool motor_control(double speed, double turning) {
   static double lastX = 0.0;
   static double lastY = 0.0;
   static double phiOld = 0.0;
   static double motorA_pos = 0.0;
   static double motorB_pos = 0.0;
+
+  bool done = false;
+  
   double targetX = targetPos * cos(targetAngle);
   double targetY = targetPos * sin(targetAngle);
 
   double velA = -1.0 * read_motor(encA, motorA_pos);
   double velB = 1.0*read_motor(encB, motorB_pos);
 
-  double forward_volts = 0*motor_speed(velA, velB, speed);
-  double turning_volts = motor_direction(velA, velB, targetAngle);
-
+  double forward_volts, turning_volts, fudge;
+  if(speed != 0.0){
+    forward_volts = motor_speed(velA, velB, speed);
+    turning_volts = 0.0;
+    fudge = 0.08;
+  } else{
+    forward_volts = 0.0;
+    turning_volts = motor_direction(velA, velB, turning);
+    fudge = 0.0;
+  }
+    if(angle_done == true){
+      done = true;
+//      Serial.println("we done");
+    }
   double voltsA = (forward_volts + turning_volts) / 2.0;
   double voltsB = (forward_volts - turning_volts) / 2.0;
   //double current_angle = read_angle();
@@ -187,11 +188,20 @@ void motor_control(double speed, double turning) {
   double nextY = lastY + SAMPLE_TIME/1000.0 * wheel_size* sin(phiOld)* (velA+velB)/2.0;
   //double newPhi = phiOld + SAMPLE_TIME/1000.0 * (wheel_size/wheel_dist)*(velA-velB);
   //double newPhi = readAngle();
-  if((nextX >= targetX)&&(nextY >= targetY)){
-//    voltsA = voltsB = 0.0;
+  if(speed != 0.0){
+  if((nextX >= targetX*1.02)&&(nextY >= targetY*1.02)){
+    voltsA = voltsB = 0.0;
+    done = true;
+  }
+  Serial.print(nextX);
+  Serial.print("/");
+  Serial.print(targetX);
+  Serial.print(" ");
+  Serial.println(forwardPID.total_error);
   }
   lastX = nextX;
   lastY = nextY;
+  
 //  phiOld = phiNew;
 
 //  Serial.print(voltsA);
@@ -212,6 +222,8 @@ void motor_control(double speed, double turning) {
   analogWrite(speedA, volt_to_pwm(voltsA));
   digitalWrite(directionA, volt_to_dir(voltsA));
 
-  analogWrite(speedB, volt_to_pwm(voltsB-0*0.15));
+  analogWrite(speedB, volt_to_pwm(voltsB-fudge));
   digitalWrite(directionB, volt_to_dir(voltsB));
+
+  return done;
 }
