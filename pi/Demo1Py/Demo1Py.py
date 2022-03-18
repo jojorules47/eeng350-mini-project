@@ -146,24 +146,3 @@ while(True):
             print("No markers found.")
     except KeyboardInterrupt:
         pass
-
-# temp (taken from CV)
-
-
-
-# shell testing lcd
-##while(True):
-##    time.sleep(1)
-##    print("state: ", state)
-##    tape = True
-##    distance = input("Distance: ")
-##    angle = input("Angle: ")
-##    state = state(tape)
-##    print("newstate: ", state)
-##    time.sleep(1)
-##    print("state: ", state)
-##    state = state(tape)
-##    print("newstate: ", state)
-##    time.sleep(3)
-##    tape = False
-        
