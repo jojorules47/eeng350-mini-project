@@ -8,8 +8,11 @@
 #include "motor_controls.h"
 
 // Motor control utilities
-int volt_to_pwm(double volts) { return (int)(volts / 5.0 * 255.0); }
-bool volt_to_dir(double volts) { return (bool)(volts >= 0.0); }
+int volt_to_pwm(double volts) { 
+  double corr_volts = abs(volts);
+  corr_volts = corr_volts >= 5.0 ? 5.0: corr_volts;
+  return (int)(corr_volts / 5.0 * 255.0); }
+bool volt_to_dir(double volts) { return (bool)(volts <= 0.0); }
 
 /**
  * Read motor velocity from a given encoder,
@@ -50,10 +53,10 @@ double controller(double current, double target,
   pid.previousTime = currentTime;
 
   // Limit motor voltage, and prevent wind-up
-  if (out > 5.0)
-    out = 5.0;
-  if (out < -5.0)
-    out = -5.0;
+  if (out > 10.0)
+    out = 10.0;
+  if (out < -10.0)
+    out = -10.0;
 
   return out;
 }
@@ -62,6 +65,7 @@ double controller(double current, double target,
  * Inner loop velocity controller to control forward velocity (rho_dot).
  */
 double motor_speed(double velA, double velB, double speed) {
+//  double rho_dot = (velA + velB) / 2.0;
   double rho_dot = wheel_size * (velA + velB) / 2.0;
 
   return controller(rho_dot, speed, forwardPID);
@@ -71,7 +75,8 @@ double motor_speed(double velA, double velB, double speed) {
  * Inner loop rotational velocity controller to control turning (phi_dot).
  */
 double motor_direction(double velA, double velB, double turning) {
-  double phi_dot = wheel_size * (velA - velB) / wheel_dist;
+//  double phi_dot = (velA - velB);
+  double phi_dot = wheel_size*(velA - velB)/wheel_dist; // wheel_size, wheel_dist
 
   return controller(phi_dot, turning, turningPID);
 }
@@ -81,7 +86,9 @@ double motor_direction(double velA, double velB, double turning) {
  * rotational velocity using inner control loops. Place this function
  * in 'main' loop to control robot at a sampled time.
  */
+ double targetPos = 5.0;
 void motor_control(double speed, double turning) {
+  static double lastX = 0.0;
   static double motorA_pos = 0.0;
   static double motorB_pos = 0.0;
 
@@ -94,11 +101,22 @@ void motor_control(double speed, double turning) {
   double voltsA = (forward_volts + turning_volts) / 2.0;
   double voltsB = (forward_volts - turning_volts) / 2.0;
 
-  Serial.print(voltsA);
+  double nextX = lastX + SAMPLE_TIME/1000.0 * wheel_size*(velA+velB)/2.0;
+  if(nextX >= targetPos){
+    voltsA = voltsB = 0.0;
+  }
+  lastX = nextX;
+
+//  Serial.print(voltsA);
+//  Serial.print(", ");
+//  Serial.print(voltsB);
+  Serial.print(lastX);
   Serial.print(", ");
-  Serial.print(voltsB);
+  Serial.print(targetPos);
   Serial.print(", ");
-  Serial.println((velA+velB)/2.0);
+   Serial.print(wheel_size*(velA+velB)/2.0,4);
+  Serial.print(", ");
+  Serial.println(wheel_size*(velA-velB)/wheel_dist,4);
 
   analogWrite(speedA, volt_to_pwm(voltsA));
   digitalWrite(directionA, volt_to_dir(voltsA));

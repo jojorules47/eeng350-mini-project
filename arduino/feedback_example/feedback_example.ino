@@ -18,7 +18,7 @@ void setup() {
   pinMode(speedB, OUTPUT);
   pinMode(statusFlag, INPUT);
 
-  Serial.begin(SERIAL_RATE);
+  Serial.begin(115200);
 
   digitalWrite(enablePin, HIGH);       // turn motor on
   digitalWrite(directionA, rotationA); // set direction of motor
@@ -30,13 +30,30 @@ double target_vel = 0.0;
 double target_turn = 0.0;
 int sleep = 1000;
 
+//double pos = 0.0;
+//double targetPos = 5.0;
+
 void loop() {
   // static double motor_voltage = 0.0;
 
   // Step motor position to PI/2 after 1 second
   if (millis() >= sleep) {
-    target_vel = 3.0;
+    target_vel = 0.5;
+    target_turn = 0.0;
   }
+
+/*  long encCountsA = encA.read();
+  long encCountsB = encB.read();
+ 
+  double currentPosA = ((double)encCountsA * 2.0 * PI) / 3200.0;
+  double currentPosB = ((double)encCountsB * 2.0 * PI) / 3200.0;
+
+  double 
+  */
+//  if(pos == targetPos){
+//    target_vel = 0.0;
+//    target_turn = 0.0;
+//  }
 
   // Read motor position, and determine motor voltage from PID controller
   // This is encapsulated in a function in `motorTest.ino`
