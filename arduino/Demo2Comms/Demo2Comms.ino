@@ -33,7 +33,7 @@ void receiveData(int byteCount){
     int a = 0, s;
     int address = Wire.read(); // address sent first
 
-    s = Wire.read() - 47; // read in state
+    s = Wire.read() - 48; // read in state
     while(a != 'a') a = Wire.read();
     
     distanceS = ""; // read in distance values until 'a'
@@ -48,8 +48,6 @@ void receiveData(int byteCount){
       if (a > 0) angleS += (char)a;
     }
     Serial.println(s);
-    Serial.println(distanceS);
-    Serial.println(angleS);
     switch (s) {
       case 0:
         Serial.println("none");

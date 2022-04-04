@@ -25,7 +25,6 @@ def writeNumber(s): # distance and angle
     block = str(s) + "a" + str(distance) + "b" + str(angle) + "c"
     data = []
     i = 0
-    print("\n" + block + "\n")
     for ch in block:
         data.append(ord(ch))
         i = i + 1
@@ -66,7 +65,7 @@ def rotate(tape): # 2 (angle)
     lcd.text_direction = lcd.LEFT_TO_RIGHT
     lcd.message = "Rotating\nAngle: " + str(angle)
     writeNumber(2)
-    if angle < 1:
+    if float(angle) < 1:
         lcd.clear()
         return straight
     else:
@@ -75,8 +74,15 @@ def rotate(tape): # 2 (angle)
 def find(tape): # 3 (no tape found)
     lcd.text_direction = lcd.LEFT_TO_RIGHT
     lcd.message = "Finding Tape..."
+    
+    temp = int(input("Is tape found? (0/1): ")) ################### TESTING
+    if temp:
+        tape = True
+    else:
+        tape = False
+    
     writeNumber(3)
-    if tape:
+    if tape == True:
         lcd.clear()
         return rotate
     else:
@@ -92,26 +98,29 @@ distance = 1.0
 
 i = 0
 while(True):
-    time.sleep(1)
-    print("state: ", state) # none
-    state = state(tape)
-    print("newstate: ", state) # find
-    time.sleep(1)
-    tape = True
-    angle = input("Angle: ")
-    state = state(tape)
-    print("newstate: ", state) # rotate
-    time.sleep(1)
-    angle = 1.4
-    state = state(tape)
-    print("newstate: ", state) # rotate
-    angle = .2
-    state = state(tape)
-    print("newstate: ", state) # straight
-    time.sleep(3)
-    angle = float(input("Angle: "))
-    state = state(tape)
-    print("newstate: ", state) # none
-    
-##    distance = input("Distance: ")
+##    time.sleep(1)
+##    print("state: ", state) # none
+##    state = state(tape)
+##    print("newstate: ", state) # find
+##    time.sleep(1)
+##    tape = True
 ##    angle = input("Angle: ")
+##    state = state(tape)
+##    print("newstate: ", state) # rotate
+##    time.sleep(1)
+##    angle = 1.4
+##    state = state(tape)
+##    print("newstate: ", state) # rotate
+##    angle = .2
+##    state = state(tape)
+##    print("newstate: ", state) # straight
+##    time.sleep(3)
+##    angle = float(input("Angle: "))
+##    state = state(tape)
+##    print("newstate: ", state) # none
+
+    print("Current State: ", state)
+    distance = input("Distance: ")
+    angle = input("Angle: ")
+
+    state = state(tape)
