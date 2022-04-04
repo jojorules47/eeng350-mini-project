@@ -13,6 +13,7 @@ int volt_to_pwm(double volts) {
   corr_volts = corr_volts >= 5.0 ? 5.0: corr_volts;
   return (int)(corr_volts / 5.0 * 255.0); }
 bool volt_to_dir(double volts) { return (bool)(volts <= 0.0); }
+double sgn(double x) { return x >= 0.0 ? 1.0 : -1.0; }
 
 /**
  * Read motor velocity from a given encoder,
@@ -53,10 +54,24 @@ double controller(double current, double target,
   pid.previousTime = currentTime;
 
   // Limit motor voltage, and prevent wind-up
-  if (out > 10.0)
-    out = 10.0;
-  if (out < -10.0)
-    out = -10.0;
+  if (abs(out) > 10.0){
+    out = sgn(out)*10.0;
+    pid.error = sgn(pid.error)*min(10.0/pid.p, abs(pid.error));
+    pid.total_error = (out-pid.p*pid.error)/pid.i;
+  }
+
+  return out;
+}
+
+double simple_controller(double current, double target,
+                  struct control_t &pid) {
+  pid.error = target - current;               // Determine current error
+  double out = pid.p * pid.error;
+
+  // Limit motor voltage, and prevent wind-up
+  if (abs(out) > 10.0){
+    out = sgn(out)*10.0;
+  }
 
   return out;
 }
@@ -68,7 +83,7 @@ double motor_speed(double velA, double velB, double speed) {
 //  double rho_dot = (velA + velB) / 2.0;
   double rho_dot = wheel_size * (velA + velB) / 2.0;
 
-  return controller(rho_dot, speed, forwardPID);
+  return simple_controller(rho_dot, speed, forwardPID);
 }
 
 /**
@@ -78,7 +93,8 @@ double motor_direction(double velA, double velB, double turning) {
 //  double phi_dot = (velA - velB);
   double phi_dot = wheel_size*(velA - velB)/wheel_dist; // wheel_size, wheel_dist
 
-  return controller(phi_dot, turning, turningPID);
+//  return controller(phi_dot, turning, turningPID);
+    return simple_controller(phi_dot, turning, turningPID);
 }
 
 /**

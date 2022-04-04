@@ -18,3 +18,6 @@ velocity, as well as closed loop PI controlled results.
 `PI_tester.m`: Verify discrete time controller results, and compare to
 MATLAB continuous PI controller. The **Arduino Controller** block
 contains the example script found in the Mini Project Instructions.
+
+`run_camera_sim.m`: Verify controls models for the robot. Currently differs from
+our Arduino controls implementation, so results are not accurate.

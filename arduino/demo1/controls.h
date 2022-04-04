@@ -16,7 +16,7 @@ struct control_t {
 };
 
 /*** Define Constants ***/
-//const unsigned int SERIAL_RATE = 115200;
+const unsigned int SERIAL_RATE = 115200;
 const int SAMPLE_TIME = 10;
 
 const double wheel_size = 0.245; //7.25e-3;
@@ -39,13 +39,11 @@ int rotationB = LOW; // initialize rotation direction of motorB, set HIGH to
 Encoder encA(2, 5); // Declare encoder object
 Encoder encB(3, 6); // Declare encoder object
 
-//struct control_t forwardPID = {259.067, 0.0, 0.0, 0.0, 0.0, 0.0, 0};
-//struct control_t forwardPID = {175.6983*0.03, 2600.2627*0.03, 0.0, 0.0, 0.0, 0.0, 0};
-//struct control_t turningPID = {2.0*0.03, 1.0*0.03, 0.0, 0.0, 0.0, 0.0, 0};
-//struct control_t turningPID = {29.4247, 404.5903, 0.0, 0.0, 0.0, 0.0, 0};
 
-struct control_t forwardPID = {251.7604, 0.0, 0.0, 0.0, 0.0, 0.0, 0};
-struct control_t turningPID = {166.7586,0.0, 0.0, 0.0, 0.0, 0.0, 0};
+// PID Controllers
+struct control_t forwardPID = {0.0, 4.0, 0.0, 0.0, 0.0, 0.0, 0};
+struct control_t turningPID = {0.0,5.0, 0.0, 0.0, 0.0, 0.0, 0};
+struct control_t anglePID = {0.0, 5.0, 0.0, 0.0, 0.0, 0.0, 0};
 
 /*** Function Declarations ***/
 int volt_to_pwm(double volts);
@@ -57,6 +55,7 @@ double controller(double current, double target_position,
 
 double motor_speed(double velA, double velB, double speed);
 double motor_direction(double velA, double velB, double turning);
-void motor_control(double speed, double turning);
+bool motor_control(double speed, double turning);
+double read_angle();
 
 #endif //__CONTROLS_H__
