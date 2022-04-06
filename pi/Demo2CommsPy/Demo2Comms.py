@@ -3,21 +3,21 @@
 import smbus
 import time
 import board
-import adafruit_character_lcd.character_lcd_rgb_i2c as character_lcd
+##import adafruit_character_lcd.character_lcd_rgb_i2c as character_lcd
 
 # I2C
 bus = smbus.SMBus(1)
 address = 0x04
 i2c = board.I2C()  # uses board.SCL and board.SDA
 
-# RPI - LCD
-# Modify this if you have a different sized Character LCD
-lcd_columns = 16
-lcd_rows = 2
-# Initialise the LCD class
-lcd = character_lcd.Character_LCD_RGB_I2C(i2c, lcd_columns, lcd_rows)
-# Set LCD color to whiteish
-lcd.color = [200, 25, 25]
+### RPI - LCD
+### Modify this if you have a different sized Character LCD
+##lcd_columns = 16
+##lcd_rows = 2
+### Initialise the LCD class
+##lcd = character_lcd.Character_LCD_RGB_I2C(i2c, lcd_columns, lcd_rows)
+### Set LCD color to whiteish
+##lcd.color = [200, 25, 25]
 
 
 def writeNumber(s): # distance and angle
@@ -38,22 +38,22 @@ def readNumber():
     return data
 
 def none(tape): # 0 (do nothing)
-    lcd.text_direction = lcd.LEFT_TO_RIGHT
-    lcd.message = "stop"
+##    lcd.text_direction = lcd.LEFT_TO_RIGHT
+##    lcd.message = "stop"
     writeNumber(0)
     if not stop:
         if tape:
-            lcd.clear()
+##            lcd.clear()
             return rotate
         else:
-            lcd.clear()
+##            lcd.clear()
             return find
     else:
         return none
 
 def straight(tape): # 1 (distance)
-    lcd.text_direction = lcd.LEFT_TO_RIGHT
-    lcd.message = "Moving\nDistance: " + str(distance)
+##    lcd.text_direction = lcd.LEFT_TO_RIGHT
+##    lcd.message = "Moving\nDistance: " + str(distance)
     writeNumber(1)
     if angle < 1:
         return straight
@@ -62,18 +62,18 @@ def straight(tape): # 1 (distance)
         return rotate
 
 def rotate(tape): # 2 (angle)
-    lcd.text_direction = lcd.LEFT_TO_RIGHT
-    lcd.message = "Rotating\nAngle: " + str(angle)
+##    lcd.text_direction = lcd.LEFT_TO_RIGHT
+##    lcd.message = "Rotating\nAngle: " + str(angle)
     writeNumber(2)
     if float(angle) < 1:
-        lcd.clear()
+##        lcd.clear()
         return straight
     else:
         return rotate
 
 def find(tape): # 3 (no tape found)
-    lcd.text_direction = lcd.LEFT_TO_RIGHT
-    lcd.message = "Finding Tape..."
+##    lcd.text_direction = lcd.LEFT_TO_RIGHT
+##    lcd.message = "Finding Tape..."
     
     temp = int(input("Is tape found? (0/1): ")) ################### TESTING
     if temp:
@@ -83,8 +83,10 @@ def find(tape): # 3 (no tape found)
     
     writeNumber(3)
     if tape == True:
-        lcd.clear()
-        return rotate
+##        lcd.clear()
+        return none
+##        return rotate
+        
     else:
         return find
     
