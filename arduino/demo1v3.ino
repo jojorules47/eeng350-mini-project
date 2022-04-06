@@ -231,12 +231,9 @@ bool motor_control(int &command, double target_distance, double target_angle) {
       Serial.println("TURN");
       break;
     case GO_FORWARD:
-      if(tape_found){
         forward_volts = motor_speed(velA, velB, target_distance, done);
         turning_volts = 0.0;
         fudge = 0.08;
-      }
-      else{command = DO_NOTHING;}
       Serial.println("GO_FORWARD");
       break;
   case FIND_TAPE:
