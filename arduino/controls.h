@@ -2,6 +2,7 @@
 #define __CONTROLS_H__
 #include "DualMC33926MotorShield.h"
 #include <Encoder.h>
+#include <Wire.h>
 
 /*** Type Definitions ***/
 struct control_t {
@@ -34,7 +35,7 @@ int rotationA = LOW; // initialize rotation direction of motorA, set HIGH to
                      // spin opposite direction
 int rotationB = LOW; // initialize rotation direction of motorB, set HIGH to
                      // spin opposite direction
-
+bool tape_found = false;
 Encoder encA(2, 5); // Declare encoder object
 Encoder encB(3, 6); // Declare encoder object
 
@@ -70,7 +71,7 @@ double controller(double current, double target_position,
 
 double motor_speed(double velA, double velB, double speed);
 double motor_direction(double velA, double velB, double turning);
-bool motor_control(double speed, double turning);
+bool motor_control(int camera_state, float camera_distance, float camera_angle);
 double read_angle();
 void reset_encoders();
 

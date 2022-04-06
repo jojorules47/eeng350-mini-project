@@ -7,8 +7,8 @@
 
 #include "controls.h"
 #define DO_NOTHING 0
-#define TURN 1
-#define GO_FORWARD 2
+#define TURN 2
+#define GO_FORWARD 1
 #define FIND_TAPE 3
 
 // Motor control utilities
@@ -114,23 +114,29 @@ static double lastY = 0.0;
 //static double phiOld = 0.0;
   double rho_dot = wheel_size * (velA + velB) / 2.0;
 
-  double target_vel = 0.1;
+  double target_vel = 0.3;
   
 
-  double voltage = controller(rho_dot, 3*target_vel, forwardPID);
+  double voltage = controller(rho_dot, target_vel, forwardPID);
 
-  double phi = readAngle();
+  double phi = read_angle();
   double nextX = lastX + SAMPLE_TIME/1000.0 * wheel_size* cos(phi)* (velA+velB)/2.0;
   double nextY = lastY + SAMPLE_TIME/1000.0 * wheel_size* sin(phi)* (velA+velB)/2.0;
 
   if(nextX >= distance*0.96){
     voltage = 0.0;
     done = true;
+    lastX = lastY = 0.0;
+    nextX = nextY = 0.0;
+    forwardPID.total_error = 0.0;
+    Serial.print("Target acheived");
   }
 
   Serial.print(nextX);
   Serial.print("/");
   Serial.print(distance);
+  Serial.print(" ");
+  Serial.print(lastX);
   Serial.print(" ");
   Serial.println(forwardPID.total_error);
 //  }
@@ -160,7 +166,7 @@ double motor_direction(double velA, double velB, double turning, bool& done) {
 //double my_angle = PI/2;
   double current_angle = read_angle()/2;
 
-  double target_phi = controller(current_angle, turning, 0.8, anglePID);
+  double target_phi = controller(current_angle, turning, 0.6, anglePID);
 //  if(target_phi > 0.2) target_phi = 0.2;
   Serial.print(current_angle);
   Serial.print("/");
@@ -185,59 +191,65 @@ double motor_direction(double velA, double velB, double turning, bool& done) {
  double targetPos = 2.0;
  double targetAngle = 0.0;
 
-typedef enum{
-  DO_NOTHING,
-  GO_FORWARD,
-  TURN,
-  FIND_TAPE
-}robot_states ;
+//typedef enum{
+//  DO_NOTHING,
+//  GO_FORWARD,
+//  TURN,
+//  FIND_TAPE
+//}robot_states ;
  
-bool motor_control(int command, double target_speed, double target_angle) {
+bool motor_control(int &command, double target_distance, double target_angle) {
   static double lastX = 0.0;
   static double lastY = 0.0;
   static double phiOld = 0.0;
   static double motorA_pos = 0.0;
   static double motorB_pos = 0.0;
 
-  static robot_state current_state = command;
+//static robot_states current_state = command;
 
   bool done = false;
   
-  double targetX = targetPos * cos(targetAngle);
-  double targetY = targetPos * sin(targetAngle);
+  double targetX = target_distance * cos(target_angle);
+  double targetY = target_distance * sin(target_angle);
 
   double velA = -1.0 * read_motor(encA, motorA_pos);
   double velB = 1.0*read_motor(encB, motorB_pos);
 
   double forward_volts, turning_volts, fudge;
-  switch(current_state){
+  switch(command){
     case DO_NOTHING:
       forward_volts = 0;
       turning_volts = 0;
+      motorA_pos = motorB_pos = 0.0;
+      done = true;
+      Serial.println("DO_NOTHING");
     break;
     case TURN:
       forward_volts = 0.0;
       turning_volts = motor_direction(velA, velB, target_angle, done);
       fudge = -0.059;
+      Serial.println("TURN");
       break;
     case GO_FORWARD:
-      forward_volts = 0.75*motor_speed(velA, velB, target_speed, done);
-      turning_volts = 0.0;
-      fudge = 0.08;
+        forward_volts = motor_speed(velA, velB, target_distance, done);
+        turning_volts = 0.0;
+        fudge = 0.08;
+      Serial.println("GO_FORWARD");
       break;
   case FIND_TAPE:
     //TODO: implement
       if(tape_found){
-        current_state = DO_NOTHING;
+        command = DO_NOTHING;
         break;}
       forward_volts = 0.0;
       turning_volts = motor_direction(velA, velB, target_angle = 2*PI, done);
+      Serial.println("FIND_TAPE");
       break;
     default:
     Serial.println("ERROR");
   }
 
-  }
+  
 //  if(speed != 0.0){
 //    if(reset==1){
 //       encA.write(0);
@@ -258,10 +270,9 @@ bool motor_control(int command, double target_speed, double target_angle) {
 //    }
   double voltsA = (forward_volts + turning_volts) / 2.0;
   double voltsB = (forward_volts - turning_volts) / 2.0;
+ // double nextX = lastX + SAMPLE_TIME/1000.0 * wheel_size* cos(phiOld)* (velA+velB)/2.0;
+ // double nextY = lastY + SAMPLE_TIME/1000.0 * wheel_size* sin(phiOld)* (velA+velB)/2.0;
   //double current_angle = read_angle();
-//  
-//  double nextX = lastX + SAMPLE_TIME/1000.0 * wheel_size* cos(phiOld)* (velA+velB)/2.0;
-//  double nextY = lastY + SAMPLE_TIME/1000.0 * wheel_size* sin(phiOld)* (velA+velB)/2.0;
 //  //double newPhi = phiOld + SAMPLE_TIME/1000.0 * (wheel_size/wheel_dist)*(velA-velB);
 //  //double newPhi = readAngle();
 //  if(speed != 0.0){
