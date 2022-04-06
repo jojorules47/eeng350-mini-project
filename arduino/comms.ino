@@ -34,7 +34,7 @@ double camera_distance = 0.0;
 void receiveData(int byteCount){
   String angleS, distanceS;
   while(Wire.available()) {
-    int a = 0, s;
+    int a = 0, s, t;
     int address = Wire.read(); // address sent first
 
     s = Wire.read() - '0'; // read in state
@@ -51,8 +51,10 @@ void receiveData(int byteCount){
       a = Wire.read();
       if (a > 0) angleS += (char)a;
     }
-    Serial.println(s);
+    t = Wire.read() - 48;
+    Serial.println(t);
     pi_state = s;
+    tape_found = t;
     
     switch (s) {
       case DO_NOTHING:
