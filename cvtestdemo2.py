@@ -169,13 +169,15 @@ def main():
     angle = 0
     toggle = 0
     img0,contours=pic()
-#   this is start of state machine
-    if toggle == 1:
-        drive,mea=end(img0)
-    else:
-        drive,mea=begin(img0)
+    #pic takes one picture
+    drive,mea=end(img0)
+    drive,mea=begin(img0)
+    #end finds end of tape
+    #begin finds start of tape
     angle = ang(contours)
-
+    #angle finds angle
+    #probably want a while loop with pic for angle state
+    
     print("drive: {:.2f}" .format(drive))
     print("distane to tape: {:.2f}" .format(mea))
 #    cv.imshow("pic",img0)
