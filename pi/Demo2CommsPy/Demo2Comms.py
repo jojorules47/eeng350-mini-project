@@ -83,7 +83,6 @@ def find(tape): # 3 (no tape found)
 ##    lcd.text_direction = lcd.LEFT_TO_RIGHT
 ##    lcd.message = "Finding Tape..."
 
-
     #print("len", da_input.len)
     #temp = int(da_input.strip()) ################### TESTING
 ##    if temp == 1:

@@ -11,8 +11,8 @@ from time import sleep
 import numpy as np
 import sys
 
-mtx = np.fromfile('mtx.npy').reshape(3,3)
-dist = np.fromfile('dist.npy')
+mtx = np.fromfile('/home/pi/comp_vis/mtx.npy').reshape(3,3)
+dist = np.fromfile('/home/pi/comp_vis/dist.npy')
 
 width = 512
 height = 288
@@ -35,7 +35,7 @@ kernel = np.ones((5,5),np.uint8)
 
 def constant():
     camera.capture('/home/pi/comp_vis/Assignment2/constant.jpg')
-    new=cv.imread('/home/pi/comp_vis/Assignment2/constant.jpg')
+    img=cv.imread('/home/pi/comp_vis/Assignment2/constant.jpg')
     h,w=img.shape[:2]
     ncm,roi=cv.getOptimalNewCameraMatrix(mtx,dist,(w,h),1,(w,h))
     new = cv.undistort(img,mtx,dist,None,ncm)
