@@ -231,14 +231,18 @@ def rotate():
     #once tape is found
     comms.angle = 360
 
+    #while comms.angle > 2:
+    img1,contours1 = pic()
+    comms.angle = ang(contours1)
+    print("Rotating the robot", comms.angle)
+    comms.writeNumber(2, comms.tape)
+        #read angle 1
+        #rotate to angle
     while comms.angle > 2:
         img1,contours1 = pic()
         comms.angle = ang(contours1)
-        print("Rotating the robot", comms.angle)
-        #read angle 1
-        #rotate to angle
-        comms.writeNumber(2, comms.tape)
-        sleep(5) # Wait for arduino to rotate. May replace
+    
+    #sleep(5) # Wait for arduino to rotate. May replace
     #check tolerance
     #img2,contours2 = pic()
     #angle2 = ang(contours2)

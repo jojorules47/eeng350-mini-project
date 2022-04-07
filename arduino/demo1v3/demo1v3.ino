@@ -19,7 +19,7 @@ int volt_to_pwm(double volts) {
 bool volt_to_dir(double volts) { return (bool)(volts <= 0.0); }
 
 /**
- * Read motor velocity from a given encoder,
+ * Read motor velocity from a given enc138.67.238.188oder,
  * using last recorded position to aggregate velocity.
  */
 double read_motor(Encoder &enc, double &lastPos) {
