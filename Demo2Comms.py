@@ -29,7 +29,11 @@ def writeNumber(s, tape): # distance and angle
         
     angleRad = (angle/180)*np.pi
     distanceFt = distance/12
-        
+    integer = int(angleRad * (10**3))/(10**3)
+    angleRad = float(integer)
+    integer = int(distanceFt * (10**3))/(10**3)
+    distanceFt = float(integer)
+    
     block = str(s) + "a" + str(distanceFt) + "b" + str(angleRad) + "c" + str(t)
     data = []
     i = 0
