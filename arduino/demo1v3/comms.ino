@@ -12,7 +12,7 @@ int camera_state = DO_NOTHING;
 double camera_angle = 0.0;
 double camera_distance = 0.0;
 bool ack = false;
-
+  
 
 //void setup() {
 //  Serial.begin(115200); // start serial for output
@@ -75,6 +75,7 @@ void receiveData(int byteCount){
         break;
       case FIND_TAPE:
         //Serial.println("find");
+        pi_angle = angleS.toDouble();
         break;
       default:
         pi_state = 0;
@@ -108,14 +109,21 @@ void get_next_state(){
 //  }
 
   //static int last_state = 0;
-  if(camera_state != pi_state){
-
-  }
+//  if(camera_state != pi_state){
+//
+//  }
   //bool updated = (camera_distance != pi_distance) || (camera_angle != pi_angle);
+
+  pi_angle = 0.0;
+  pi_distance = 0.0;
+  pi_state = 2;
+  dataReady = true;
+  
   if(dataReady){
     camera_state = pi_state;
     camera_distance = pi_distance;
     camera_angle = pi_angle;
+    sendData();
     dataReady = false;
     
     //Serial.print("Current State: ");
