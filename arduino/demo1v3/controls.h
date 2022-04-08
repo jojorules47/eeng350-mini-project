@@ -56,8 +56,10 @@ Encoder encB(3, 6); // Declare encoder object
 //struct control_t turningPID = {0.0,5.0, 0.0, 0.0, 0.0, 0.0, 0};
 //struct control_t anglePID = {0.0, 5.0, 0.0, 0.0, 0.0, 0.0, 0};
 
-struct control_t forwardPID = {0.0, 2.0, 0.0, 0.0, 0.0, 0.0, 0};
-struct control_t turningPID = {0.0,2.0, 0.0, 0.0, 0.0, 0.0, 0};
+struct control_t forwardPID = {5.0, 0.25, 0.0, 0.0, 0.0, 0.0, 0};
+//struct control_t forwardPID = {4.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0};
+
+struct control_t turningPID = {4.0,0.4, 0.0, 0.0, 0.0, 0.0, 0};
 struct control_t anglePID = {0.0, 2.0, 0.0, 0.0, 0.0, 0.0, 0};
 
 
