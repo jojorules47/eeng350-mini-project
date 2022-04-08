@@ -91,9 +91,10 @@ void loop() {
 //Serial.println("done");
 //      camera_state = get_next_state(camera_state);
 //      update_target(camera_state);
+      //sendData();
+      //Serial.println("done!");
       get_next_state();
       reset_encoders();
-      sendData;
     }
     
     if (millis() > time_now + SAMPLE_TIME)
