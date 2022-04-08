@@ -60,6 +60,7 @@ def end(img0):
     pixel = 0
     mea = 0
     drive = 0
+    mid = wi/2
     found= False
     for i in range(hi):
             for j in range(wi):
@@ -111,10 +112,13 @@ def end(img0):
         #117= 15in
         #144= 12in
     return drive,mea,angle
+
+
 def begin(img0):
     pixel = 0
     mea = 0
     drive = 0
+    mid = wi/2
     found= False
     for i in range(hi-1,0,-1):
             for j in range(wi):
@@ -267,7 +271,11 @@ def rotate():
         input('Do a rotate?')
         comms.writeNumber(2, comms.tape)
         ##### wait for aurduino acknowdledge #####
-        sleep(1.5)
+        while (ack == False):
+            print("Waiting...")
+            time.sleep(1)
+        ack = False
+        print("Acknowledged!")
     
     #sleep(5) # Wait for arduino to rotate. May replace
     #check tolerance
@@ -299,6 +307,11 @@ def drive_to_start():
             input('Do a rotate?')
             comms.writeNumber(2, comms.tape)
         ##### wait for aurduino acknowdledge #####
+            while (ack == False):
+                print("Waiting...")
+                time.sleep(1)
+            ack = False
+            print("Acknowledged!")
             sleep(1.5)
         comms.distance = drive
         print("Driving the robot to start", comms.distance)
@@ -307,6 +320,11 @@ def drive_to_start():
         if mea == drive:
             break
         ##### wait for aurduino acknowdledge #####
+        while (ack == False):
+            print("Waiting...")
+            time.sleep(1)
+        ack = False
+        print("Acknowledged!")
         
 #        sleep(10) # Wait for arduino to stop
     #drive distance "drive"
@@ -331,7 +349,12 @@ def drive_to_end():
             print("Off by", comms.angle)
             input('Do a rotate?')
             comms.writeNumber(2, comms.tape)
-        ##### wait for aurduino acknowdledge #####
+        ##### wait for arduino acknowdledge #####
+            while (ack == False):
+                print("Waiting...")
+                time.sleep(1)
+            ack = False
+            print("Acknowledged!")
             sleep(1.5)
         comms.distance = drive
         print("Driving the robot to end", comms.distance)
@@ -340,6 +363,11 @@ def drive_to_end():
         if mea == drive:
             break
         ##### wait for aurduino acknowdledge #####
+        while (ack == False):
+            print("Waiting...")
+            time.sleep(1)
+        ack = False
+        print("Acknowledged!")
 #        sleep(10) # Wait for arduino to stop
 
 

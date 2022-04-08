@@ -11,6 +11,7 @@ double pi_angle, pi_distance= 0.0;
 int camera_state = DO_NOTHING;
 double camera_angle = 0.0;
 double camera_distance = 0.0;
+boolean ack = false;
 
 
 //void setup() {
@@ -81,12 +82,13 @@ void receiveData(int byteCount){
   }
 }
 
-//
-//// callback for sending data
-//void sendData(){
-//  Wire.write((uint8_t *) &pi_angle, 4);
-//
-//}
+
+// callback for sending data
+void sendData(){
+  Serial.println("Sending ack...");
+  Wire.write(1);
+
+}
 
 
 void get_next_state(){

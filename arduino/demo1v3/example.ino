@@ -30,7 +30,7 @@ void setup() {
 
   // define callbacks for i2c communication
   Wire.onReceive(receiveData);
-//  Wire.onRequest(sendData);
+  Wire.onRequest(sendData);
   Serial.println("Ready!");
 
 }
@@ -93,6 +93,7 @@ void loop() {
 //      update_target(camera_state);
       get_next_state();
       reset_encoders();
+      sendData;
     }
     
     if (millis() > time_now + SAMPLE_TIME)
