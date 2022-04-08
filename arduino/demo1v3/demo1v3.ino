@@ -166,7 +166,7 @@ double motor_direction(double velA, double velB, double turning, bool& done) {
 //double my_angle = PI/2;
   double current_angle = read_angle()/2;
 
-  double target_phi = controller(current_angle, turning, 0.6, anglePID);
+  double target_phi = controller(current_angle, turning, 0.2, anglePID);
 //  if(target_phi > 0.2) target_phi = 0.2;
   Serial.print(current_angle);
   Serial.print("/");
@@ -175,8 +175,8 @@ double motor_direction(double velA, double velB, double turning, bool& done) {
   Serial.println(target_phi);
   double phi_dot = wheel_size*(velA - velB)/wheel_dist; // wheel_size, wheel_dist
 
-  double voltage = controller(phi_dot, target_phi, turningPID);
-  if(turning != 0.0 && abs(current_angle) >= abs(turning-0.05)){
+  double voltage = controller(phi_dot, target_phi, 1.25, turningPID);
+  if(turning != 0.0 && abs(current_angle) >= abs(turning)){
     voltage = 0.0;
     done = true;
   }
@@ -228,6 +228,9 @@ bool motor_control(int &command, double target_distance, double target_angle) {
       forward_volts = 0.0;
       turning_volts = motor_direction(velA, velB, target_angle, done);
       fudge = -0.059;
+      if(done){
+        command = DO_NOTHING;
+      }
       //Serial.println("TURN");
       break;
     case GO_FORWARD:
@@ -236,18 +239,21 @@ bool motor_control(int &command, double target_distance, double target_angle) {
         fudge = 0.08;
       //Serial.println("GO_FORWARD");
       break;
-  case FIND_TAPE:
+    case FIND_TAPE:
     //TODO: implement
       if(tape_found){
         command = DO_NOTHING;
         break;}
       forward_volts = 0.0;
-      turning_volts = motor_direction(velA, velB, target_angle = 2*PI, done);
+      turning_volts = motor_direction(velA, velB, 2*PI, done);
       //Serial.println("FIND_TAPE");
       break;
+     
     default:
+    
     Serial.println("ERROR");
   }
+  if(done) command = DO_NOTHING;
 
   
 //  if(speed != 0.0){
