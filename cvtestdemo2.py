@@ -65,6 +65,7 @@ def end(img0):
             for j in range(wi):
                 if img0[i][j] > 0:
                     pixel = i
+                    mid = j
                     print("pixel: %d" % pixel)
                     found = True
                     break
@@ -94,6 +95,14 @@ def end(img0):
     elif(pixel > 117):
         drive = (12+3*(144-pixel)/(144-117))
         mea = drive
+    fov = 62.2
+    fudge = 1.00
+    if(mid<(wi/2)): 
+        angle = (fov/2)*fudge*(((wi/2)-mid)/((wi/2)))
+        print("The camera needs to turn {:.2f} degrees to center the marker." .format(angle))
+    else:
+        angle = -(fov/2)*((mid-(wi/2))/(wi/2))
+        print("The camera needs to turn {:.2f} degrees to center the marker." .format(angle))
         
         #48 = 36in
         #59 = 30in
@@ -101,7 +110,7 @@ def end(img0):
         #99= 18in
         #117= 15in
         #144= 12in
-    return drive,mea
+    return drive,mea,angle
 def begin(img0):
     pixel = 0
     mea = 0
@@ -111,6 +120,7 @@ def begin(img0):
             for j in range(wi):
                 if img0[i][j] > 0:
                     pixel = i
+                    mid = j
                     print("pixel: %d" % pixel)
                     found = True
                     break
@@ -140,7 +150,15 @@ def begin(img0):
     elif(pixel > 117):
         drive = (12+3*(144-pixel)/(144-117))
         mea = drive
-    return drive,mea
+    fov = 62.2
+    fudge = 1.00
+    if(mid<(wi/2)): 
+        angle = (fov/2)*fudge*(((wi/2)-mid)/((wi/2)))
+        print("The camera needs to turn {:.2f} degrees to center the marker." .format(angle))
+    else:
+        angle = -(fov/2)*((mid-(wi/2))/(wi/2))
+        print("The camera needs to turn {:.2f} degrees to center the marker." .format(angle))
+    return drive,mea,angle
 
 def ang(contours):
     angle = 0
@@ -229,18 +247,27 @@ def find_tape():
     
 def rotate():
     #once tape is found
-    comms.angle = 360
+#    comms.angle = 10
 
     #while comms.angle > 2:
-    img1,contours1 = pic()
-    comms.angle = ang(contours1)
-    print("Rotating the robot", comms.angle)
-    comms.writeNumber(2, comms.tape)
+    #img1,contours1 = pic()
+    #comms.angle = -1.0*ang(contours1)
+    #print("Rotating the robot", comms.angle)
+    
         #read angle 1
         #rotate to angle
-    while comms.angle > 2:
+    while abs(comms.angle) > 1:
         img1,contours1 = pic()
-        comms.angle = ang(contours1)
+#        cv.imshow('pic', img1)
+#        cv.waitKey(0)
+#        cv.destroyAllWindows()
+        coma = -1.0*ang(contours1)
+        comms.angle = coma
+        print("Off by", comms.angle)
+        input('Do a rotate?')
+        comms.writeNumber(2, comms.tape)
+        ##### wait for aurduino acknowdledge #####
+        sleep(1.5)
     
     #sleep(5) # Wait for arduino to rotate. May replace
     #check tolerance
@@ -253,13 +280,35 @@ def drive_to_start():
     #x
     drive = 0
     mea = 100
-    while mea != drive:
+    while True:
+        input('Drive?')
         img3,contours3 = pic()
-        drive,mea=begin(img3)
+#        cv.imshow('pic', img3)
+#        cv.waitKey(0)
+#        cv.destroyAllWindows()
+        drive,mea,angle=begin(img3)
+        if abs(angle) > 1:
+            comms.angle = angle
+            img1,contours1 = pic()
+#        cv.imshow('pic', img1)
+#        cv.waitKey(0)
+#        cv.destroyAllWindows()
+            coma = -1.0*(ang(contours1)+1)
+            comms.angle = coma 
+            print("Off by", comms.angle)
+            input('Do a rotate?')
+            comms.writeNumber(2, comms.tape)
+        ##### wait for aurduino acknowdledge #####
+            sleep(1.5)
         comms.distance = drive
         print("Driving the robot to start", comms.distance)
         comms.writeNumber(1, comms.tape)
-        sleep(10) # Wait for arduino to stop
+        
+        if mea == drive:
+            break
+        ##### wait for aurduino acknowdledge #####
+        
+#        sleep(10) # Wait for arduino to stop
     #drive distance "drive"
     #if mea == drive: done
     # else: go back to x and run again until done
@@ -267,24 +316,43 @@ def drive_to_start():
 def drive_to_end():
     drive = 0
     mea = 100
-    while mea != drive:
+    while True:
+        input('Drive?')
         img4,contours4 = pic()
-        drive,mea=end(img4)
+        drive,mea,angle=end(img4)
+        if abs(angle) > 1:
+            comms.angle = angle
+            img1,contours1 = pic()
+#        cv.imshow('pic', img1)
+#        cv.waitKey(0)
+#        cv.destroyAllWindows()
+            coma = -1.0*(ang(contours1)+1)
+            comms.angle = coma
+            print("Off by", comms.angle)
+            input('Do a rotate?')
+            comms.writeNumber(2, comms.tape)
+        ##### wait for aurduino acknowdledge #####
+            sleep(1.5)
         comms.distance = drive
         print("Driving the robot to end", comms.distance)
         comms.writeNumber(1, comms.tape)
-        sleep(10) # Wait for arduino to stop
+        
+        if mea == drive:
+            break
+        ##### wait for aurduino acknowdledge #####
+#        sleep(10) # Wait for arduino to stop
 
 
 
 if __name__ == '__main__':
-    test2 = False
+    test2 = True
     
     find_tape()
-    input("Rotate?")
+#    input("Rotate?")
     rotate()
-    input("Drive?")
+#    input("Drive?")
     drive_to_start()
+    input("End?")
     if test2:
         drive_to_end()
 
