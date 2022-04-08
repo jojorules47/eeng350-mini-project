@@ -114,23 +114,24 @@ static double lastY = 0.0;
 //static double phiOld = 0.0;
   double rho_dot = wheel_size * (velA + velB) / 2.0;
 
-  double target_vel = 0.3;
+  double target_vel = 0.5;
   
 
-  double voltage = controller(rho_dot, target_vel, forwardPID);
 
   double phi = read_angle();
   double nextX = lastX + SAMPLE_TIME/1000.0 * wheel_size* cos(phi)* (velA+velB)/2.0;
   double nextY = lastY + SAMPLE_TIME/1000.0 * wheel_size* sin(phi)* (velA+velB)/2.0;
+  
+  double voltage = controller(nextX, distance, 3.0, forwardPID);
 
-  if(nextX >= distance*0.96){
-    voltage = 0.0;
-    done = true;
-    lastX = lastY = 0.0;
-    nextX = nextY = 0.0;
-    forwardPID.total_error = 0.0;
-    Serial.print("Target acheived");
-  }
+//  if(nextX >= distance*0.96){
+//    voltage = 0.0;
+//    done = true;
+//    lastX = lastY = 0.0;
+//    nextX = nextY = 0.0;
+//    forwardPID.total_error = 0.0;
+//    Serial.print("Target acheived");
+//  }
 
   Serial.print(nextX);
   Serial.print("/");
@@ -138,7 +139,7 @@ static double lastY = 0.0;
   Serial.print(" ");
   Serial.print(lastX);
   Serial.print(" ");
-  Serial.println(forwardPID.total_error);
+  Serial.println(voltage);
 //  }
   lastX = nextX;
   lastY = nextY;
@@ -168,20 +169,24 @@ double motor_direction(double velA, double velB, double turning, bool& done) {
 
   double target_phi = controller(current_angle, turning, 0.2, anglePID);
 //  if(target_phi > 0.2) target_phi = 0.2;
+
+  double phi_dot = wheel_size*(velA - velB)/wheel_dist; // wheel_size, wheel_dist
+
+//  double voltage = controller(phi_dot, target_phi, 1.3, turningPID);
+  double voltage = controller(current_angle, turning, 1.75, turningPID);
+
   Serial.print(current_angle);
   Serial.print("/");
   Serial.print(turning);
   Serial.print(", ");
-  Serial.println(target_phi);
-  double phi_dot = wheel_size*(velA - velB)/wheel_dist; // wheel_size, wheel_dist
-
-  double voltage = controller(phi_dot, target_phi, 1.25, turningPID);
-  if(turning != 0.0 && abs(current_angle) >= abs(turning)){
-    voltage = 0.0;
-    done = true;
-  }
+  Serial.println(voltage);
+//  if(turning != 0.0 && abs(current_angle) >= abs(turning)){
+//    voltage = 0.0;
+//    done = true;
+//  }
 
     return voltage;
+    
 }
 /**
  * Control motors to give robot specified forward speed and
@@ -227,16 +232,17 @@ bool motor_control(int &command, double target_distance, double target_angle) {
     case TURN:
       forward_volts = 0.0;
       turning_volts = motor_direction(velA, velB, target_angle, done);
-      fudge = -0.059;
-      if(done){
-        command = DO_NOTHING;
-      }
+      fudge = 0*0.059;
+//      if(done || abs(target_angle) < 0.01){
+//        command = DO_NOTHING;
+//        
+//      }
       //Serial.println("TURN");
       break;
     case GO_FORWARD:
         forward_volts = motor_speed(velA, velB, target_distance, done);
         turning_volts = 0.0;
-        fudge = 0.08;
+        fudge = 0*0.1;
       //Serial.println("GO_FORWARD");
       break;
     case FIND_TAPE:
@@ -245,7 +251,7 @@ bool motor_control(int &command, double target_distance, double target_angle) {
         command = DO_NOTHING;
         break;}
       forward_volts = 0.0;
-      turning_volts = motor_direction(velA, velB, 2*PI, done);
+      turning_volts = motor_direction(velA, velB, target_angle, done);
       //Serial.println("FIND_TAPE");
       break;
      
