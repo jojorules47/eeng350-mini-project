@@ -11,7 +11,7 @@ double pi_angle, pi_distance= 0.0;
 int camera_state = DO_NOTHING;
 double camera_angle = 0.0;
 double camera_distance = 0.0;
-boolean ack = false;
+bool ack = false;
 
 
 //void setup() {
@@ -32,6 +32,7 @@ boolean ack = false;
 
 
 // callback for received data
+bool dataReady = false;
 void receiveData(int byteCount){
   String angleS, distanceS;
   while(Wire.available()) {
@@ -53,41 +54,40 @@ void receiveData(int byteCount){
       if (a > 0) angleS += (char)a;
     }
     t = Wire.read() - 48;
-    Serial.println(t);
+    //Serial.println(t);
     pi_state = s;
     tape_found = t;
     
     switch (s) {
       case DO_NOTHING:
-        Serial.println("none");
+        //Serial.println("none");
         if(camera_state == FIND_TAPE) tape_found=true;
         break;
       case GO_FORWARD:
-        Serial.println("straight");
+        //Serial.println("straight");
         pi_distance = distanceS.toDouble();
-        Serial.print(pi_distance);
+      //  Serial.print(pi_distance);
         break;
       case TURN:
-        Serial.println("rotate");
+        //Serial.println("rotate");
         pi_angle = angleS.toDouble();
-        Serial.print(pi_angle);
+        //Serial.print(pi_angle);
         break;
       case FIND_TAPE:
-        Serial.println("find");
+        //Serial.println("find");
         break;
       default:
         pi_state = 0;
-        Serial.print("Out of bounds");
+        //Serial.print("Out of bounds");
     }
   }
+  dataReady = true;
 }
-
 
 // callback for sending data
 void sendData(){
   Serial.println("Sending ack...");
   Wire.write(1);
-
 }
 
 
@@ -106,22 +106,38 @@ void get_next_state(){
 //
 //        next_state = 0;
 //  }
+
+  //static int last_state = 0;
   if(camera_state != pi_state){
-    Serial.print("Current State: ");
-    Serial.print(camera_state);
-    Serial.print(" Next state: ");
+
+  }
+  //bool updated = (camera_distance != pi_distance) || (camera_angle != pi_angle);
+  if(dataReady){
+    camera_state = pi_state;
+    camera_distance = pi_distance;
+    camera_angle = pi_angle;
+    dataReady = false;
+    
+    //Serial.print("Current State: ");
+    //Serial.print(camera_state);
+    Serial.print("New State: ");
     Serial.print(pi_state);
     Serial.print(" Distance: ");
     Serial.print(camera_distance);
     Serial.print(" Angle: ");
     Serial.println(camera_angle);
+  //last_state = camera_state;
   }
-  camera_state = pi_state;
-  camera_distance = pi_distance;
-  camera_angle = pi_angle;
+  
 //  return next_state;
 
 }
+
+//void send_ack(){
+//  Wire.beginTransmission()
+//  Wire.write(true)
+//  Wire.endTransmission()
+//}
 
 void update_target(int state){
   switch(state){
