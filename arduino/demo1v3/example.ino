@@ -91,7 +91,7 @@ void loop() {
 //Serial.println("done");
 //      camera_state = get_next_state(camera_state);
 //      update_target(camera_state);
-      //sendData();
+//      sendData();
       //Serial.println("done!");
       get_next_state();
       reset_encoders();
