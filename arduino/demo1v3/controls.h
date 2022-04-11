@@ -19,8 +19,8 @@ struct control_t {
 const unsigned int SERIAL_RATE = 115200;
 const int SAMPLE_TIME = 10;
 
-const double wheel_size = 0.245; // 7.25e-3;
-const double wheel_dist = 0.443; // 23.0e-3; // TODO: fixme
+const double wheel_size = 0.245; //7.25e-3;
+const double wheel_dist = 0.443; //23.0e-3; // TODO: fixme
 
 const int enablePin =
     4; // enable pin, set LOW to turn off motor, set HIGH to turn on
@@ -36,35 +36,35 @@ int rotationA = LOW; // initialize rotation direction of motorA, set HIGH to
 int rotationB = LOW; // initialize rotation direction of motorB, set HIGH to
                      // spin opposite direction
 bool tape_found = false;
+int ack = 0;
+bool first_run = false;
 Encoder encA(2, 5); // Declare encoder object
 Encoder encB(3, 6); // Declare encoder object
 
-// struct control_t forwardPID = {259.067, 0.0, 0.0, 0.0, 0.0, 0.0, 0};
-// struct control_t forwardPID = {175.6983*0.03, 2600.2627*0.03, 0.0, 0.0, 0.0,
-// 0.0, 0}; struct control_t turningPID = {2.0*0.03, 1.0*0.03, 0.0, 0.0, 0.0,
-// 0.0, 0}; struct control_t turningPID = {29.4247, 404.5903, 0.0, 0.0, 0.0,
-// 0.0, 0};
+//struct control_t forwardPID = {259.067, 0.0, 0.0, 0.0, 0.0, 0.0, 0};
+//struct control_t forwardPID = {175.6983*0.03, 2600.2627*0.03, 0.0, 0.0, 0.0, 0.0, 0};
+//struct control_t turningPID = {2.0*0.03, 1.0*0.03, 0.0, 0.0, 0.0, 0.0, 0};
+//struct control_t turningPID = {29.4247, 404.5903, 0.0, 0.0, 0.0, 0.0, 0};
 
-// struct control_t forwardPID = {34.327, 175.6983, 0.0, 0.0, 0.0, 0.0, 0};
-// struct control_t turningPID = {0.1794,0.0, 0.0, 0.0, 0.0, 0.0, 0};
-// struct control_t anglePID = {10.0 ,3.0,0.0, 0.0, 0.0, 0.0, 0};
+//struct control_t forwardPID = {34.327, 175.6983, 0.0, 0.0, 0.0, 0.0, 0};
+//struct control_t turningPID = {0.1794,0.0, 0.0, 0.0, 0.0, 0.0, 0};
+//struct control_t anglePID = {10.0 ,3.0,0.0, 0.0, 0.0, 0.0, 0};
 
-// struct control_t forwardPID = {0*34.327, 175.6983/10, 0.0, 0.0, 0.0, 0.0, 0};
-// struct control_t turningPID = {0*4.0,0.9, 0.0, 0.0, 0.0, 0.0, 0};
-// struct control_t anglePID = {0.25, 0.01, 0.0, 0.0, 0.0, 0.0, 0};
+//struct control_t forwardPID = {0*34.327, 175.6983/10, 0.0, 0.0, 0.0, 0.0, 0};
+//struct control_t turningPID = {0*4.0,0.9, 0.0, 0.0, 0.0, 0.0, 0};
+//struct control_t anglePID = {0.25, 0.01, 0.0, 0.0, 0.0, 0.0, 0};
 //
-// struct control_t forwardPID = {0.0, 4.0, 0.0, 0.0, 0.0, 0.0, 0};
-// struct control_t turningPID = {0.0,5.0, 0.0, 0.0, 0.0, 0.0, 0};
-// struct control_t anglePID = {0.0, 5.0, 0.0, 0.0, 0.0, 0.0, 0};
-
-// struct control_t forwardPID = {5.0, 0.25, 0.0, 0.0, 0.0, 0.0, 0};
-// struct control_t forwardPID = {4.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0};
-// struct control_t turningPID = {4.0, 0.4, 0.0, 0.0, 0.0, 0.0, 0};
-// struct control_t anglePID = {0.0, 2.0, 0.0, 0.0, 0.0, 0.0, 0};
+//struct control_t forwardPID = {0.0, 4.0, 0.0, 0.0, 0.0, 0.0, 0};
+//struct control_t turningPID = {0.0,5.0, 0.0, 0.0, 0.0, 0.0, 0};
+//struct control_t anglePID = {0.0, 5.0, 0.0, 0.0, 0.0, 0.0, 0};
 
 struct control_t forwardPID = {0.0, 2.0, 0.0, 0.0, 0.0, 0.0, 0};
-struct control_t turningPID = {0.0, 2.0, 0.0, 0.0, 0.0, 0.0, 0};
+//struct control_t forwardPID = {4.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0};
+
+struct control_t turningPID = {0.0,2.0, 0.0, 0.0, 0.0, 0.0, 0};
 struct control_t anglePID = {0.0, 2.0, 0.0, 0.0, 0.0, 0.0, 0};
+
+
 /*** Function Declarations ***/
 int volt_to_pwm(double volts);
 bool volt_to_dir(double volts);
