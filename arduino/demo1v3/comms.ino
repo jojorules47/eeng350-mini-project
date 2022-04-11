@@ -11,7 +11,6 @@ double pi_angle, pi_distance = 0.0;
 int camera_state = DO_NOTHING;
 double camera_angle = 0.0;
 double camera_distance = 0.0;
-bool ack = false;
 
 // void setup() {
 //   Serial.begin(115200); // start serial for output
@@ -89,8 +88,9 @@ void receiveData(int byteCount) {
 
 // callback for sending data
 void sendData() {
-  Serial.println("Sending ack...");
-  Wire.write(1);
+  Serial.print("Sending: ");
+  Serial.println(ack);
+  Wire.write(ack);
 }
 
 void get_next_state() {
@@ -116,16 +116,13 @@ void get_next_state() {
   // bool updated = (camera_distance != pi_distance) || (camera_angle !=
   // pi_angle);
 
-  // pi_angle = 0.0;
-  // pi_distance = 0.0;
-  // pi_state = 2;
-  // dataReady = true;
-
   if (dataReady) {
+    
     camera_state = pi_state;
     camera_distance = pi_distance;
     camera_angle = pi_angle;
-    sendData();
+    ack = 0;
+    first_run = true;
     dataReady = false;
 
     // Serial.print("Current State: ");
@@ -137,6 +134,8 @@ void get_next_state() {
     Serial.print(" Angle: ");
     Serial.println(camera_angle);
     // last_state = camera_state;
+
+    //sendData();
   }
 
   //  return next_state;
