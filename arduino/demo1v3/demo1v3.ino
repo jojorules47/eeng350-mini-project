@@ -122,21 +122,22 @@ double motor_speed(double velA, double velB, double distance, bool& done) {
   // Get forward velocity
   double rho_dot = wheel_size * (velA + velB) / 2.0;
 
-  double target_vel = 0.5;
-  double voltage = controller(rho_dot, target_vel, 3.0, forwardPID);
-
   double phi = read_angle();
   double nextX = lastX + SAMPLE_TIME/1000.0 * wheel_size* cos(phi)* (velA+velB)/2.0;
   double nextY = lastY + SAMPLE_TIME/1000.0 * wheel_size* sin(phi)* (velA+velB)/2.0;
   
+  double target_vel = controller(nextX, distance, 1.0, velPID); //0.5;
+  double voltage = controller(rho_dot, target_vel, 3.0, forwardPID);
+
+  
   
   // Check if distance has been reached, and set flag
   if(nextX >= distance*0.96){
-    voltage = 0.0;
+//    voltage = 0.0;
     done = true;
-    lastX = lastY = 0.0;
-    nextX = nextY = 0.0;
-    forwardPID.total_error = 0.0;
+//    lastX = lastY = 0.0;
+//    nextX = nextY = 0.0;
+//    forwardPID.total_error = 0.0;
     Serial.print("Target acheived");
   }
 
@@ -144,6 +145,8 @@ double motor_speed(double velA, double velB, double distance, bool& done) {
   Serial.print(nextX);
   Serial.print("/");
   Serial.print(distance);
+  Serial.print(" ");
+  Serial.print(target_vel);
   Serial.print(" ");
   Serial.println(voltage);
 
@@ -158,11 +161,11 @@ double motor_speed(double velA, double velB, double distance, bool& done) {
  */
 double motor_direction(double velA, double velB, double turning, bool& done) {
   double current_angle = read_angle()/2;
-  double target_phi = controller(current_angle, turning, 0.2, anglePID);
+  double target_phi = controller(current_angle, turning, 0.5, anglePID);
 
   double phi_dot = wheel_size*(velA - velB)/wheel_dist; // wheel_size, wheel_dist
 
-  double voltage = controller(phi_dot, target_phi, 1.2, turningPID);
+  double voltage = controller(phi_dot, target_phi, 3.0, turningPID);
 
   Serial.print(" TURN: ");
   Serial.print(current_angle);
@@ -173,7 +176,7 @@ double motor_direction(double velA, double velB, double turning, bool& done) {
 
   // Check if target has been reached, and set flag
   if(turning != 0.0 && abs(current_angle - turning) <= 0.01){
-    voltage = 0.0;
+//    voltage = 0.0;
     done = true;
   }
 
@@ -225,7 +228,7 @@ bool motor_control(int &command, double target_distance, double target_angle) {
 
     case GO_FORWARD:
         forward_volts = motor_speed(velA, velB, target_distance, done);
-        turning_volts = 0.0;
+        turning_volts = motor_direction(velA, velB, 0.0, done);
         fudge = 0*0.1;
       break;
 

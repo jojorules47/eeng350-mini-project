@@ -73,7 +73,17 @@ void sendData() {
  * Determine next command for robot to execute, if a command is available
  * from the Pi
  */
+ bool first_state = false;
 void get_next_state() {
+  // TODO: Remove debug statements
+  if(first_state == false){
+  dataReady = true;
+  pi_state = 2;
+  pi_distance = 0.0;
+  pi_angle = PI/2;
+  first_state = true;
+  }
+  
   if (dataReady) {
     // Update command and targets
     camera_state = pi_state;

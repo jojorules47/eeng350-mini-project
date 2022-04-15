@@ -35,7 +35,7 @@ void setup() {
 
 }
 
-bool first = false;
+//bool first = false;
 // Millis delay variables
 double target_vel = 0.0;
 double target_turn = 0.0;
@@ -44,10 +44,10 @@ int sleep = 1000;
 void loop() {
   // Step motor position to PI/2 after 1 second
   // Investigate removing this
-  if (millis() >= sleep && first == false) {
-    get_next_state();
-    first = true;
-  }
+//  if (millis() >= sleep && first == false) {
+//    get_next_state();
+//    first = true;
+//  }
 
 
 

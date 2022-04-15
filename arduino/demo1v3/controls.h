@@ -42,10 +42,13 @@ Encoder encA(2, 5); // Declare encoder object
 Encoder encB(3, 6); // Declare encoder object
 
 // PID controllers
-struct control_t forwardPID = {0.0, 2.0, 0.0, 0.0, 0.0, 0.0, 0};
-struct control_t turningPID = {0.0,2.0, 0.0, 0.0, 0.0, 0.0, 0};
-struct control_t anglePID = {0.0, 2.0, 0.0, 0.0, 0.0, 0.0, 0};
-
+//struct control_t forwardPID = {0.0, 2.0, 0.0, 0.0, 0.0, 0.0, 0};
+struct control_t velPID = {5.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0};
+struct control_t forwardPID = {10.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0};
+//struct control_t turningPID = {0.0,2.0, 0.0, 0.0, 0.0, 0.0, 0};
+//struct control_t anglePID = {0.0, 2.0, 0.0, 0.0, 0.0, 0.0, 0};
+struct control_t turningPID = {5.0,0.0, 0.0, 0.0, 0.0, 0.0, 0};
+struct control_t anglePID = {10.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0};
 
 /*** Function Declarations ***/
 int volt_to_pwm(double volts);
