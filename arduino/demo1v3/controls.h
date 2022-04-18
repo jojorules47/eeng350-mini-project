@@ -47,8 +47,8 @@ struct control_t velPID = {5.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0};
 struct control_t forwardPID = {10.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0};
 //struct control_t turningPID = {0.0,2.0, 0.0, 0.0, 0.0, 0.0, 0};
 //struct control_t anglePID = {0.0, 2.0, 0.0, 0.0, 0.0, 0.0, 0};
-struct control_t turningPID = {5.0,0.0, 0.0, 0.0, 0.0, 0.0, 0};
-struct control_t anglePID = {10.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0};
+struct control_t turningPID = {4.0,0.3, 0.0, 0.0, 0.0, 0.0, 0};
+struct control_t angleVelPID = {15.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0};
 
 /*** Function Declarations ***/
 int volt_to_pwm(double volts);

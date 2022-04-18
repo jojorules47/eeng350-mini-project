@@ -88,11 +88,17 @@ double controller(double current, double target,double limit,
   unsigned long currentTime = millis(); // Get current time
   double elapsedTime = (double)(currentTime - pid.previousTime) / 1000.0; // Calculate interval
 
-  pid.error = target - current;               // Determine current error
+  pid.error = target - current;// Determine current error
+  double rate_error;
   pid.total_error += pid.error * elapsedTime; // Calculate integrated error
-  double rate_error =
+  rate_error =
       (pid.error - pid.last_error) / elapsedTime; // Calculate derivative error
 
+//    Serial.print("Integrating: ");
+//    Serial.print(pid.total_error);
+//    Serial.print("/");
+//    Serial.println(limit);
+    
   double out = pid.p * pid.error + pid.i * pid.total_error +
                pid.d * rate_error; // Total PID output
 
@@ -102,11 +108,11 @@ double controller(double current, double target,double limit,
   // Limit motor voltage, and prevent wind-up
   if (out > limit){
     out = limit;
-    pid.total_error = limit;
+    pid.total_error = 0.0; // limit
   }
   if (out < -1.0*limit){
     out = -1.0*limit;
-    pid.total_error = -1.0*limit;
+    pid.total_error = 0.0; //-1.0*limit;
   }
 
   return out;
@@ -115,30 +121,40 @@ double controller(double current, double target,double limit,
 /**
  * Inner loop velocity controller to control forward velocity (rho_dot).
  */
-double motor_speed(double velA, double velB, double distance, bool& done) {
+double motor_speed(double velA, double velB, double distance, bool go_forever, bool& done) {
+  static double last_rho = 0.0;
   static double lastX = 0.0;
   static double lastY = 0.0;
 
   // Get forward velocity
   double rho_dot = wheel_size * (velA + velB) / 2.0;
 
+  double av_rho = (last_rho + rho_dot) / 2.0;
+  last_rho = rho_dot;
+
   double phi = read_angle();
   double nextX = lastX + SAMPLE_TIME/1000.0 * wheel_size* cos(phi)* (velA+velB)/2.0;
   double nextY = lastY + SAMPLE_TIME/1000.0 * wheel_size* sin(phi)* (velA+velB)/2.0;
   
-  double target_vel = controller(nextX, distance, 1.0, velPID); //0.5;
-  double voltage = controller(rho_dot, target_vel, 3.0, forwardPID);
+  double target_vel;
+  const double vel_limit = 2.0;
+  if(go_forever){
+    target_vel = vel_limit;
+  } else{
+    target_vel = controller(nextX, distance, vel_limit, velPID); //0.5;
+  }
+  double voltage = controller(av_rho, target_vel, 5.0, forwardPID);
 
   
   
   // Check if distance has been reached, and set flag
   if(nextX >= distance*0.96){
 //    voltage = 0.0;
-    done = true;
+//    done = true;
 //    lastX = lastY = 0.0;
 //    nextX = nextY = 0.0;
 //    forwardPID.total_error = 0.0;
-    Serial.print("Target acheived");
+//    Serial.print("Target acheived");
   }
 
   Serial.print("FORWARD: ");
@@ -160,24 +176,33 @@ double motor_speed(double velA, double velB, double distance, bool& done) {
  * Inner loop rotational velocity controller to control turning (phi_dot).
  */
 double motor_direction(double velA, double velB, double turning, bool& done) {
+  static double last_phi = 0.0;
   double current_angle = read_angle()/2;
-  double target_phi = controller(current_angle, turning, 0.5, anglePID);
+  double target_phi = controller(current_angle, turning, 1.0, angleVelPID);
+
+ 
 
   double phi_dot = wheel_size*(velA - velB)/wheel_dist; // wheel_size, wheel_dist
 
-  double voltage = controller(phi_dot, target_phi, 3.0, turningPID);
+  double av_phi = (phi_dot+last_phi)/2.0;
+  last_phi = target_phi;
+  double voltage = controller(av_phi, target_phi, 3.0, turningPID);
 
   Serial.print(" TURN: ");
   Serial.print(current_angle);
   Serial.print("/");
   Serial.print(turning);
   Serial.print(", ");
+  Serial.print(phi_dot);
+  Serial.print("/");
+  Serial.print(av_phi);
+  Serial.print(" ");
   Serial.println(voltage);
 
   // Check if target has been reached, and set flag
   if(turning != 0.0 && abs(current_angle - turning) <= 0.01){
 //    voltage = 0.0;
-    done = true;
+//    done = true;
   }
 
   return voltage;
@@ -212,6 +237,7 @@ bool motor_control(int &command, double target_distance, double target_angle) {
 
   // Execute each state differently, using control to get motor voltages
   double forward_volts, turning_volts, fudge;
+  bool go_forever;
   switch(command){
     case DO_NOTHING:
       forward_volts = 0;
@@ -227,8 +253,9 @@ bool motor_control(int &command, double target_distance, double target_angle) {
       break;
 
     case GO_FORWARD:
-        forward_volts = motor_speed(velA, velB, target_distance, done);
-        turning_volts = motor_direction(velA, velB, 0.0, done);
+        go_forever = true;
+        forward_volts = motor_speed(velA, velB, target_distance, go_forever, done);
+        turning_volts = motor_direction(velA, velB, target_angle, done);
         fudge = 0*0.1;
       break;
 

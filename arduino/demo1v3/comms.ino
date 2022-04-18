@@ -78,8 +78,8 @@ void get_next_state() {
   // TODO: Remove debug statements
   if(first_state == false){
   dataReady = true;
-  pi_state = 2;
-  pi_distance = 0.0;
+  pi_state = 1;
+  pi_distance = 10.0;
   pi_angle = PI/2;
   first_state = true;
   }
