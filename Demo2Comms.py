@@ -19,7 +19,7 @@ i2c = board.I2C()  # uses board.SCL and board.SDA
 ##lcd = character_lcd.Character_LCD_RGB_I2C(i2c, lcd_columns, lcd_rows)
 ### Set LCD color to whiteish
 ##lcd.color = [200, 25, 25]
-
+ack = False
 
 def writeNumber(s, tape): # distance and angle
     if tape:
@@ -34,7 +34,7 @@ def writeNumber(s, tape): # distance and angle
     integer = int(distanceFt * (10**3))/(10**3)
     distanceFt = float(integer)
     #angleRad = -1*angleRad
-    
+
     block = str(s) + "a" + str(distanceFt) + "b" + str(angleRad) + "c" + str(t)
     data = []
     i = 0
@@ -46,10 +46,16 @@ def writeNumber(s, tape): # distance and angle
     return -1
 
 def readNumber():
+    ack = False
     #number = bus.read_byte(address)
     #number = bus.read_byte_data(address, 0)
-    data = bus.read_i2c_block_data(address, 0, 4) # reading back float from Arduino
-    return data
+
+    data = bus.read_byte(address) # reading back from Arduino
+    print("Data:", data)
+    if (data):
+        print("Received something from Arduino")
+        ack = True
+    return ack
 
 
 def none(tape): # 0 (do nothing)
