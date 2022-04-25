@@ -46,6 +46,7 @@ void receiveData(int byteCount) {
       break;
     case GO_FORWARD:
       pi_distance = distanceS.toDouble();
+      pi_angle = angleS.toDouble();
       break;
     case TURN:
       pi_angle = angleS.toDouble();
@@ -59,7 +60,12 @@ void receiveData(int byteCount) {
   }
 
   // Raise that new command is available
-  dataReady = true;
+//  dataReady = true;
+  camera_state = pi_state;
+  camera_distance = pi_distance;
+
+  // TODO: investigate cumulative angle
+  camera_angle = camera_angle+pi_angle;
 }
 
 // callback for sending data
@@ -76,13 +82,13 @@ void sendData() {
  bool first_state = false;
 void get_next_state() {
   // TODO: Remove debug statements
-  if(first_state == false){
-  dataReady = true;
-  pi_state = 1;
-  pi_distance = 10.0;
-  pi_angle = PI/2;
-  first_state = true;
-  }
+//  if(first_state == false){
+//  dataReady = true;
+//  pi_state = 1;
+//  pi_distance = 10.0;
+//  pi_angle = PI/2;
+//  first_state = true;
+//  }
   
   if (dataReady) {
     // Update command and targets

@@ -16,7 +16,7 @@ struct control_t {
 };
 
 /*** Define Constants ***/
-const unsigned int SERIAL_RATE = 115200;
+const unsigned long SERIAL_RATE = 115200;
 const int SAMPLE_TIME = 10;
 
 const double wheel_size = 0.245; //7.25e-3;

@@ -137,7 +137,7 @@ double motor_speed(double velA, double velB, double distance, bool go_forever, b
   double nextY = lastY + SAMPLE_TIME/1000.0 * wheel_size* sin(phi)* (velA+velB)/2.0;
   
   double target_vel;
-  const double vel_limit = 2.0;
+  const double vel_limit = 0.5;
   if(go_forever){
     target_vel = vel_limit;
   } else{
@@ -186,7 +186,7 @@ double motor_direction(double velA, double velB, double turning, bool& done) {
 
   double av_phi = (phi_dot+last_phi)/2.0;
   last_phi = target_phi;
-  double voltage = controller(av_phi, target_phi, 3.0, turningPID);
+  double voltage = controller(av_phi, target_phi, 5.0, turningPID);
 
   Serial.print(" TURN: ");
   Serial.print(current_angle);
@@ -273,11 +273,11 @@ bool motor_control(int &command, double target_distance, double target_angle) {
   }
 
   // If a state finishes, and we're not doing nothing, tell Pi we've finished
-  if(done && (command != DO_NOTHING)) {
-    command = DO_NOTHING;
-    ack = 1;
-    Serial.println("bruh");
-  }
+//  if(done && (command != DO_NOTHING)) {
+//    command = DO_NOTHING;
+//    ack = 1;
+//    Serial.println("bruh");
+//  }
 
   double voltsA = (forward_volts + turning_volts) / 2.0;
   double voltsB = (forward_volts - turning_volts) / 2.0;
