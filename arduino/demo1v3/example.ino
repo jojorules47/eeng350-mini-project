@@ -41,59 +41,29 @@ double target_vel = 0.0;
 double target_turn = 0.0;
 int sleep = 1000;
 
-//double pos = 0.0;
-//double targetPos = 5.0;
-
 void loop() {
-  // static double motor_voltage = 0.0;
-
   // Step motor position to PI/2 after 1 second
+  // Investigate removing this
   if (millis() >= sleep && first == false) {
-   // target_vel = 0.0;
-   // target_turn = PI/4;
-//         camera_state = get_next_state(camera_state);
-//      update_target(camera_state);
-//    camera_state = 1;
-//    camera_angle = PI/2;
-//    camera_distance=0.0;
     get_next_state();
     first = true;
-//    Serial.println("changing");
   }
 
 
 
-/*  long encCountsA = encA.read();
-  long encCountsB = encB.read();
- 
-  double currentPosA = ((double)encCountsA * 2.0 * PI) / 3200.0;
-  double currentPosB = ((double)encCountsB * 2.0 * PI) / 3200.0;
-  double 
-  */
 
   // Read motor position, and determine motor voltage from PID controller
   // This is encapsulated in a function in `motorTest.ino`
   if (millis() >= time_now + SAMPLE_TIME) {
     time_now += SAMPLE_TIME;
 
-    // Control motors to move in a straight line. See `motor_controls.ino`
-//    Serial.print(target_turn);
-//    Serial.print(", ");
-//    Serial.print(target_vel);
-//    Serial.print(" ");
-//Serial.print("State: ");
-//Serial.println(camera_state);
+    // Control motors to execute command camera_state
     bool done_yet = motor_control(camera_state, camera_distance, camera_angle);
-          
+    
+    // Executes once robot has completed current command
     if(done_yet){
-//          while(1);
-//          Serial.println("we done");
-//Serial.println("done");
-//      camera_state = get_next_state(camera_state);
-//      update_target(camera_state);
       get_next_state();
       reset_encoders();
-      sendData;
     }
     
     if (millis() > time_now + SAMPLE_TIME)

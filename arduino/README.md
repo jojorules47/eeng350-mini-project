@@ -9,6 +9,11 @@ Required Libraries:
 
 <!-- ![](../img/motor_system.jpg) -->
 
+## Demo Code
+
+Demo code is all contained within "demo" arduino files. The most recent file is
+`demo1v3`.
+
 ## Integration Utilities
 
 The `motorComms.ino` file is a reference file containing functions used to establish I2C communication with a Raspberry Pi.

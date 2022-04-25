@@ -1,6 +1,6 @@
 # eeng350-mini-project
 
-Project repo for EENG350. Current release: **Demo 1**
+Project repo for EENG350. Current release: **Demo 2**
 
 
 
@@ -12,17 +12,22 @@ Mini Project System
 
 For the arduino, several examples are provided that were used in order to test 
 certain features before adding them in the final project. The final Arduino
-program used was `demo1/demo1.ino`, which implements controls, 
+program used was `demo1v3/demo1v3.ino`, which implements controls, 
 localization, and I2C communication with the Pi.
+
+The Arduino accepts a set of commands and values, that it then acheives using 
+feedback controls. Once the robot has acheived its target, the Arduino will send 
+an acknowledge to the Pi to get its next command. 
 
 
 # Raspberry Pi
 
 The Pi is responsible for computer vision, managing the LCD, and 
-sending commands to the Arduino via I2C. 
-The final code used on the Raspberry Pi is `Demo1tCommsPy/Demo1Py.py`, which will
-locate a green shape on screen, print its location to the LCD, and then 
-send an I2C command to the Arduino. 
+sending commands to the Arduino via I2C. The final code used on the Raspberry Pi 
+is `final.py`, which will locate tape, and find its distance and angle relative
+to the robot. It will then use these distances to determine how much to turn/drive
+the robot. Once the values are determined, it will use `Demo2CommsPy.py` to send a
+target to the Arduino over I2C. 
 
 # MATLAB Simulations
 
