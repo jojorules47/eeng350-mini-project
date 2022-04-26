@@ -6,8 +6,10 @@ import Demo2Comms as comms
 
 mtx = np.fromfile('/home/pi/comp_vis/mtx.npy').reshape(3,3)
 dist = np.fromfile('/home/pi/comp_vis/dist.npy')
-width = 512
-height = 288
+#width = 512
+#height = 288
+width = 288
+height = 144
 camera = PiCamera()
 camera.resolution = (width,height)
 camera.framerate = 30
@@ -27,12 +29,12 @@ kernel = np.ones((5,5),np.uint8)
 
 def constant():
     camera.capture('/home/pi/comp_vis/Assignment2/constant.jpg')
-    img=cv.imread('/home/pi/comp_vis/Assignment2/constant.jpg')
-    h,w=img.shape[:2]
-    ncm,roi=cv.getOptimalNewCameraMatrix(mtx,dist,(w,h),1,(w,h))
-    new = cv.undistort(img,mtx,dist,None,ncm)
-    x,y,w,h = roi
-    img2=new[y:y+h,x:x+w]
+    img2=cv.imread('/home/pi/comp_vis/Assignment2/constant.jpg')
+#    h,w=img.shape[:2]
+#    ncm,roi=cv.getOptimalNewCameraMatrix(mtx,dist,(w,h),1,(w,h))
+#    new = cv.undistort(img,mtx,dist,None,ncm)
+#    x,y,w,h = roi
+#    img2=new[y:y+h,x:x+w]
     global wi
     global hi
     hi,wi=img2.shape[:2]
@@ -80,13 +82,14 @@ def ang(contours):
 
 def run():
     while(True):
+        cross = False
         camera.capture('/home/pi/comp_vis/Assignment2/constant.jpg')
-        img=cv.imread('/home/pi/comp_vis/Assignment2/constant.jpg')
-        h,w=img.shape[:2]
-        ncm,roi=cv.getOptimalNewCameraMatrix(mtx,dist,(w,h),1,(w,h))
-        new = cv.undistort(img,mtx,dist,None,ncm)
-        x,y,w,h = roi
-        img2=new[y:y+h,x:x+w]
+        img2=cv.imread('/home/pi/comp_vis/Assignment2/constant.jpg')
+#        h,w=img.shape[:2]
+#        ncm,roi=cv.getOptimalNewCameraMatrix(mtx,dist,(w,h),1,(w,h))
+#        new = cv.undistort(img,mtx,dist,None,ncm)
+#        x,y,w,h = roi
+#        img2=new[y:y+h,x:x+w]
         global wi
         global hi
         hi,wi=img2.shape[:2]
@@ -94,13 +97,23 @@ def run():
         mask = cv.inRange(hsv,lowColor,upColor)
         final = cv.bitwise_and(img2,img2, mask = mask)
         kernel = np.ones((5,5),np.uint8)
-        clean3 = cv.blur(final,(3,3))
-#    clean2 = cv.morphologyEx(clean, cv.MORPH_OPEN, kernel)
-#    clean3 = cv.morphologyEx(clean2, cv.MORPH_CLOSE, kernel)
+        clean = cv.blur(final,(3,3))
+        clean2 = cv.morphologyEx(clean, cv.MORPH_OPEN, kernel)
+        clean3 = cv.morphologyEx(clean2, cv.MORPH_CLOSE, kernel)
         grey = cv.cvtColor(clean3,cv.COLOR_BGR2GRAY)
         ret,thresh = cv.threshold(grey,15,255,cv.THRESH_BINARY)
         img0,contours,heirarchy = cv.findContours(thresh,cv.RETR_TREE,cv.CHAIN_APPROX_SIMPLE)
         angle = 0
+#        found = False
+#        i = 0
+#        cv.imshow("pic",img0)
+#        cv.waitKey(0)
+#        cv.destroyAllWindows
+        for contour in contours:
+            approx = cv.approxPolyDP(contour, 0.05*cv.arcLength(contour, True), True)
+            print("points", len(approx))
+            if len(approx) > 5 and len(approx) < 7:
+                cross = True
         try:
             cnt_c = contours[0]
             M_c = cv.moments(cnt_c)
@@ -123,8 +136,20 @@ def run():
         except IndexError:
             print("No markers found.")
             comms.tape = False
+            angle = 45
+            flag = True
+        flag = False
+        
         comms.angle = angle
+        if comms.angle > 10 and flag == False: comms.angle = 10
+        elif comms.angle < -10 and flag == False: comms.angle = -10
+        if cross == True:
+            comms.distance = 10
+        
         comms.writeNumber(1, comms.tape)
+        
+        if cross == True:
+            break
     
 
 
@@ -140,7 +165,8 @@ def find_tape():
         comms.angle = -360
     
     comms.writeNumber(3, comms.tape)
-    comms.angle = 90
+    comms.angle = 6
+    
     print("Finding tape")
     #print("newstate: ", state) # find
     #find tape and rotate to within 5 deg then its go time
@@ -149,6 +175,8 @@ def find_tape():
         angle0 = ang(contours0)
         if comms.tape == True: break
     comms.angle = angle0
+    if comms.angle > 10: comms.angle = 10
+    elif comms.angle<-10: comms.angle = -10
     #break loop when tape true
     comms.writeNumber(0, comms.tape)
     
@@ -159,6 +187,20 @@ def go():
         
 find_tape()
 go()
+print("done!")
+#while (True):
+#    test,contours = pic()
+#    cv.imshow("pic",test)
+#    
+#    i=0
+#    for contour in contours:
+#            approx = cv.approxPolyDP(contour, 0.05*cv.arcLength(contour, True), True)
+#            print("points", len(approx))
+#            if len(approx) > 10 and len(approx) < 13:
+#                print("cross")
+#    cv.waitKey(0)
+#    cv.destroyAllWindows()
+            
         
         
         
