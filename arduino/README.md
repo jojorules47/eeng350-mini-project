@@ -9,37 +9,25 @@ Required Libraries:
 
 <!-- ![](../img/motor_system.jpg) -->
 
-## Demo Code
+## Final Demo Code
 
-Demo code is all contained within "demo" arduino files. The most recent file is
-`demo1v3`.
+Code used for final demo, with commands, and combined controls to allow
+for dynamic response. All contained within the `finaldemo/` Arduino project.
 
-## Integration Utilities
+* `example.ino`: "Main" of program, constantly samples motor functions,
+and sets up hardware.
+* `comms.ino`: Contains ISR to handle I2C commands and update controls
+targets.
+* `controls.h`: Header defining globals, as well as PID controllers.
+* `finaldemo.ino`: Contains the code that handles commands, and 
+controls all motors.
 
-The `motorComms.ino` file is a reference file containing functions used to establish I2C communication with a Raspberry Pi.
+## Examples
 
-The `Wire.h` library is used to allow the Arduino to be defined as a slave in a bus connection. Skeleton functions are listed for sending and receiving various types of data to and from the Raspberry Pi. Modified versions of these functions were implemented into files such as `motorTest.ino`.
+Contains all examples used to create the foundation of our final demo
+code. This includes basic motor control, basic feedback controls, as well as basic communication examples.
 
-The current release is `demo1/demo1.ino`, which can turn and move the robot.
+## Old Demos
 
-## Feedback Control Utilities and Examples
-
-`control.ino`: Utility used to find controls transfer function. Performs
-a step response experiment, and reports velocity and voltage in a CSV
-format. This script was used to derive the MATLAB simulation results
-using a 5V step input.
-
-`feedback_example.ino`: This file served as a sandbox for developing 
-the PID feedback control loop used in our final `motorTest.ino`
-project. Several controller types are provided in the comments, 
-allowing for different motor responses. This script allows the user to
-measure the controller error, which may be helpful in testing feedback
-modifications.
-
-## Localization Examples
-
-The motorTest file uses two external libraries to drive the motor, `Encoder.h` and `DualMC33926MotorShield.h`.
-
-The `Encoder.h` library is a high performance encoder reader that reads the current position of the motor. The object **Encoder myEnc(2,5)** uses pins 2 and 5 to keep track of position. Using **myEnc.read()** the current position of the motor is read and is converted to radians by multiplying by **(2PI/ 3200)**, 3200 being the number of encoder counts per rotation. Using I2C, the arduino recieves the desired position of the motor from the raspberry pi. Sending the current position and the target position through the **controller()** function, the motor rotates to the target position using the **drive_motor()** function, which is sampled every 10 microseconds. 
-
-The `DualMC33926MotorShield.h` library uses pins 7 and 9 to control the speed and direction of the motor, respectively. The speed is controlled using **analogWrite(speedA, motor_speed);** which writes a PWM value to pin 7. The direction is controlled using **digitalWrite(directionA, (motor_voltage >= 0.0));**, which will rotate clockwise if **motor_voltage** is negative, and counter-clockwise if **motor_voltage** is positive. 
+Older demo code is included for reference, and can be used as a
+reference without needing to track git tag history.

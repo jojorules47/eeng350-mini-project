@@ -1,18 +1,21 @@
 # eeng350-mini-project
 
-Project repo for EENG350. Current release: **Demo 2**
+Project repo for EENG350. Current release: **Final Demo**
 
 
 
 ![](img/seed_robot.jpg)
 
-Mini Project System
+Final Project System
+
+The robot is capable of following the simulated warehouse path,
+completing the course in 1:08. 
 
 # Arduino
 
 For the arduino, several examples are provided that were used in order to test 
 certain features before adding them in the final project. The final Arduino
-program used was `demo1v3/demo1v3.ino`, which implements controls, 
+program used was `finaldemo/finaldemo.ino`, which implements controls, 
 localization, and I2C communication with the Pi.
 
 The Arduino accepts a set of commands and values, that it then acheives using 
