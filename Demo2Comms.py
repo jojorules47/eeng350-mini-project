@@ -21,7 +21,10 @@ i2c = board.I2C()  # uses board.SCL and board.SDA
 ##lcd.color = [200, 25, 25]
 ack = False
 
+angle = 69.0
+
 def writeNumber(s, tape): # distance and angle
+    global angle
     if tape:
         t = 1
     else:
@@ -42,7 +45,14 @@ def writeNumber(s, tape): # distance and angle
     for ch in block:
         data.append(ord(ch))
         i = i + 1
-    bus.write_i2c_block_data(address, 0, data)
+    success = False
+    while not success:
+        try:
+            bus.write_i2c_block_data(address, 0, data)
+            success = True
+        except OSError:
+            print("!!! Remote IO Error !!! Retrying...")
+            angle = 0
     return -1
 
 def readNumber():
@@ -132,7 +142,7 @@ def find(tape): # 3 (no tape found)
         
 
 # temp (taken from CV)
-angle = 69.0
+
 state = none
 tape = False
 stop = False
